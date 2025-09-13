@@ -27,18 +27,22 @@ body{background:var(--bg);color:var(--fg);font-family:Inter,-apple-system,Segoe 
 .enter{ background:var(--btn); color:#fff; border:0; border-radius:14px; padding:12px 22px; font-size:18px; cursor:pointer; box-shadow:0 10px 28px rgba(0,0,0,.35); }
 
 /* Watermark: астролябия + маятник */
-.welcome::before,.welcome::after{
-  content:""; position:absolute; pointer-events:none; opacity:.30; filter:grayscale(.2) contrast(1.1);
+.welcome::before, .welcome::after {
+  content:""; position:absolute; pointer-events:none;
+  opacity:.30; filter:grayscale(.2) contrast(1.1);
   background-repeat:no-repeat; background-size:contain; z-index:0;
 }
-.welcome::before{
+
+.welcome::before {
   left:-120px; bottom:-80px; width:560px; height:560px;
-  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="%23C49E63" stop-opacity=".25"/><stop offset="1" stop-color="%23C49E63" stop-opacity=".05"/></linearGradient></defs><circle cx="300" cy="300" r="280" fill="none" stroke="url(%23g)" stroke-width="1.5"/><circle cx="300" cy="300" r="210" fill="none" stroke="url(%23g)" stroke-width="1.2"/><circle cx="300" cy="300" r="140" fill="none" stroke="url(%23g)" stroke-width="1.2"/><g stroke="url(%23g)" stroke-width="1"><line x1="300" y1="20" x2="300" y2="580"/><line x1="20" y1="300" x2="580" y2="300"/><path d="M60,300 A240,240 0 0 1 540,300" fill="none"/><path d="M300,60 A240,240 0 0 1 300,540" fill="none"/></g><circle cx="300" cy="300" r="6" fill="%23C49E63" fill-opacity=".3"/><path d="M300,300 L520,270 L300,330 Z" fill="%23C49E63" fill-opacity=".08"/></svg>');
+  background-image:url('./assets/astrolabe.svg');
 }
-.welcome::after{
+
+.welcome::after {
   right:-80px; top:-40px; width:460px; height:460px;
-  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="%23C49E63" stop-opacity=".22"/><stop offset="1" stop-color="%23C49E63" stop-opacity=".06"/></linearGradient></defs><path d="M200,40 C220,150 260,240 320,320" fill="none" stroke="url(%23g2)" stroke-width="2"/><circle cx="200" cy="40" r="8" fill="%23C49E63" fill-opacity=".25"/><circle cx="320" cy="320" r="28" fill="%23C49E63" fill-opacity=".12" stroke="url(%23g2)"/></svg>');
+  background-image:url('./assets/pendulum.svg');
 }
+
 
 /* --- APP --- */
 .app-wrap{ position:relative; height:100%; display:flex; flex-direction:column; }
