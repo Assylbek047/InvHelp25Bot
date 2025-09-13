@@ -2,99 +2,338 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Мой Mini App</title>
+  <title>Инвест-ассистент</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <style>
-    :root[data-theme="dark"]  { --bg:#111; --fg:#fff; --btn:#2a85ff; --muted:#aaa; }
-    :root[data-theme="light"] { --bg:#fff; --fg:#111; --btn:#2a85ff; --muted:#666; }
+    :root[data-theme="dark"]  { --bg:#0f1115; --fg:#f5f7fb; --muted:#9aa4b2; --card:#171a21; --btn:#2a85ff; --good:#28a745; --bad:#d9534f; --border:#222733; }
+    :root[data-theme="light"] { --bg:#ffffff; --fg:#0f1115; --muted:#5b6470; --card:#f1f3f6; --btn:#2a85ff; --good:#1e8e3e; --bad:#c0392b; --border:#e3e7ef; }
 
-    * { box-sizing: border-box; }
+    * { box-sizing:border-box; }
     html, body { height:100%; margin:0; }
-    body {
-      font-family: Arial, sans-serif;
-      background: var(--bg);
-      color: var(--fg);
-      display: flex; align-items: center; justify-content: center;
-      padding: 24px;
-    }
-    .wrap { width: 100%; max-width: 640px; display:flex; flex-direction:column; gap:16px; align-items:center; text-align:center; }
-    h1 { margin:0 0 4px; font-size:28px; }
-    .muted { color: var(--muted); font-size:14px; }
-    button {
-      padding: 14px 20px;
-      font-size: 16px;
-      background: var(--btn);
-      color: #fff;
-      border: 0; border-radius: 12px;
-      cursor: pointer;
-    }
-    .card {
-      width:100%;
-      background: rgba(127,127,127,0.08);
-      border-radius: 12px;
-      padding: 12px 14px;
-      text-align: left;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-      white-space: pre-wrap;
-    }
+    body { background:var(--bg); color:var(--fg); font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Inter,Arial,sans-serif; }
+    .app { max-width: 760px; margin: 0 auto; padding: 16px 16px 90px; }
+    h1 { margin: 4px 0 12px; font-size: 22px; }
+    .muted { color: var(--muted); }
+    .row { display:grid; gap:12px; }
+    @media (min-width:640px){ .row.cols-2{ grid-template-columns:1fr 1fr; } }
+
+    .pill { display:inline-flex; align-items:center; gap:8px; padding:10px 14px; background:var(--card); border-radius:12px; border:1px solid var(--border); }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:14px; }
+    .title { font-weight:600; }
+    .cta { display:flex; gap:10px; flex-wrap:wrap; }
+    .btn { background:var(--btn); color:#fff; border:0; border-radius:12px; padding:12px 14px; font-size:15px; cursor:pointer; }
+    .btn.ghost { background:transparent; color:var(--fg); border:1px solid var(--border); }
+    .list { display:grid; gap:8px; }
+    .item { display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+    .ticker { font-weight:700; letter-spacing:.5px; }
+    .chg.pos { color: var(--good); } .chg.neg { color: var(--bad); }
+
+    /* табы (верхняя навигация внутри апп) */
+    .tabs { display:flex; gap:8px; margin: 6px 0 14px; }
+    .tab { padding:8px 12px; border-radius:999px; border:1px solid var(--border); color:var(--muted); cursor:pointer; }
+    .tab.active { color: var(--fg); background:var(--card); }
+
+    /* skeleton */
+    .skeleton { position:relative; overflow:hidden; background:linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent); }
+    .sk-card { height:64px; border-radius:12px; background:var(--card); border:1px solid var(--border); }
+    .sk-line { height:12px; width:70%; border-radius:6px; background:var(--card); border:1px solid var(--border); margin:8px 0; }
+
+    /* пустые состояния */
+    .empty { text-align:center; padding:24px 12px; color:var(--muted); }
+    .chip { display:inline-block; padding:6px 10px; border-radius:999px; border:1px dashed var(--border); color:var(--muted); }
+
+    /* тех.штамп */
+    .build { text-align:center; margin-top:8px; color:var(--muted); font-size:12px; }
   </style>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-  <main class="wrap">
-    <h1>Мой Mini App</h1>
-    <p>Привет, <span id="user-name">гость</span>!</p>
+  <div class="app">
+    <!-- Header -->
+    <h1>Инвест-ассистент</h1>
+    <div class="tabs" id="tabs">
+      <div class="tab" data-route="#home">Главная</div>
+      <div class="tab" data-route="#watchlist">Watchlist</div>
+      <div class="tab" data-route="#ideas">Идеи</div>
+      <div class="tab" data-route="#profile">Профиль</div>
+    </div>
 
-    <!-- твоя кнопка остаётся и работает как раньше -->
-    <button id="sendBtn">Отправить боту</button>
+    <!-- Screens -->
+    <section id="home" hidden>
+      <div class="row cols-2">
+        <div class="card">
+          <div class="title">Портфель сегодня</div>
+          <div class="pill" id="pill-pl">
+            <span>Дневной P/L:</span>
+            <strong id="pl-val">—</strong>
+          </div>
+          <div class="build muted" id="pl-note">обновляется при входе</div>
+        </div>
+        <div class="card">
+          <div class="title">Быстрые действия</div>
+          <div class="cta">
+            <button class="btn" data-action="add_trade">Внести операцию</button>
+            <button class="btn ghost" data-action="add_ticker">Добавить тикер</button>
+          </div>
+        </div>
+      </div>
 
-    <!-- небольшой лог ниже — поможет понять, внутри ли мы Telegram -->
-    <div id="log" class="card" aria-live="polite"></div>
-    <div class="muted">Если не видишь синюю системную кнопку внизу — открой Mini App через меню бота.</div>
-  </main>
+      <div class="card" style="margin-top:12px;">
+        <div class="title">Краткий обзор</div>
+        <div class="row" id="home-brief">
+          <div class="skeleton sk-line"></div>
+          <div class="skeleton sk-line" style="width:50%"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="watchlist" hidden>
+      <div class="card">
+        <div class="title">Мой Watchlist</div>
+        <div id="wl-empty" class="empty" hidden>
+          Пока пусто. <span class="chip">Добавьте первый тикер</span>
+        </div>
+        <div class="list" id="wl-list"></div>
+      </div>
+    </section>
+
+    <section id="ideas" hidden>
+      <div class="card">
+        <div class="title">Идеи</div>
+        <div id="ideas-list" class="list"></div>
+        <div id="ideas-empty" class="empty" hidden>Идей пока нет — загляните позже</div>
+      </div>
+    </section>
+
+    <section id="profile" hidden>
+      <div class="card">
+        <div class="title">Профиль и риск</div>
+        <div id="profile-state">
+          <div class="empty">
+            Ещё не настроено. <span class="chip">Выберите риск-профиль</span>
+          </div>
+        </div>
+        <div class="cta" style="margin-top:10px;">
+          <button class="btn" data-action="set_risk_low">Консервативный</button>
+          <button class="btn ghost" data-action="set_risk_med">Умеренный</button>
+          <button class="btn ghost" data-action="set_risk_high">Агрессивный</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="build">build: ui-skeleton-1</div>
+  </div>
 
   <script>
-    // утилита для лога
-    const log = (m) => {
-      const el = document.getElementById('log');
-      el.textContent += (el.textContent ? "\n" : "") + m;
+    // ====== Telegram boot ======
+    const tg = window.Telegram && window.Telegram.WebApp;
+    if (tg) {
+      tg.ready();
+      try { tg.expand(); } catch (_) {}
+      document.documentElement.dataset.theme = tg.colorScheme || 'dark';
+    } else {
+      document.documentElement.dataset.theme = 'dark';
+    }
+
+    const haptic = (type='light') => { try { tg.HapticFeedback.impactOccurred(type); } catch(_){} };
+
+    // ====== Simple Store (моки в памяти) ======
+    const store = {
+      pl: null,
+      watchlist: [],   // {ticker:'AAPL', price: 231.1, chg:+0.8}
+      ideas: [],       // {title:'Идея по ...', tag:'рост', risk:'средний'}
+      risk: null,      // 'low'|'med'|'high'
     };
 
-    const tg = window.Telegram && window.Telegram.WebApp;
+    // ====== Router ======
+    const routes = ['#home','#watchlist','#ideas','#profile'];
+    const show = (hash) => {
+      if (!routes.includes(hash)) hash = '#home';
+      // tabs
+      document.querySelectorAll('.tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.route === hash);
+      });
+      // screens
+      routes.forEach(r => {
+        const el = document.querySelector(r);
+        if (el) el.hidden = (r !== hash);
+      });
+      // BackButton: показываем только не на #home
+      if (tg && tg.BackButton) {
+        (hash !== '#home') ? tg.BackButton.show() : tg.BackButton.hide();
+      }
+      // MainButton текст под экран
+      setupMainButton(hash);
+      // первый рендер данных
+      render(hash);
+    };
 
-    if (tg) {
-      // 1) готовим WebApp и подгоняем высоту
-      tg.ready();
-      try { tg.expand(); } catch(_) {}
+    window.addEventListener('hashchange', () => show(location.hash));
+    document.getElementById('tabs').addEventListener('click', (e)=>{
+      const tab = e.target.closest('.tab'); if (!tab) return;
+      location.hash = tab.dataset.route;
+      haptic();
+    });
+    if (tg && tg.BackButton) tg.BackButton.onClick(()=> { history.back(); haptic(); });
 
-      // 2) автотема под клиент Телеграма
-      document.documentElement.dataset.theme = tg.colorScheme || 'dark';
-
-      // 3) показываем имя пользователя, если есть
-      const u = tg.initDataUnsafe && tg.initDataUnsafe.user;
-      document.getElementById('user-name').textContent = u ? (u.first_name || 'пользователь') : 'гость';
-
-      // 4) системная MainButton внизу (визуал как у «взрослых» mini app)
-      tg.MainButton.setText('Отправить боту');
-      tg.MainButton.show();
-
-      // 5) твоя кнопка: при клике шлём данные боту
-      const send = () => {
-        try { tg.HapticFeedback.impactOccurred('light'); } catch(_) {}
-        // оставляем твой текущий payload; позже сможем заменить на JSON
-        tg.sendData('Hello from Mini App!');
-        log('sendData отправлено: Hello from Mini App!');
-      };
-
-      document.getElementById('sendBtn').addEventListener('click', send);
-      tg.MainButton.onClick(send);
-
-      log('WebApp: OK. Платформа: ' + (tg.platform || 'unknown'));
-    } else {
-      // страница открыта НЕ в Telegram (обычный браузер)
-      document.getElementById('user-name').textContent = 'гость';
-      log('⚠️ WebApp объект недоступен — это не Telegram. Открой страницу из меню бота.');
+    // ====== MainButton поведение под маршрут ======
+    function setupMainButton(hash){
+      if (!tg) return;
+      const mb = tg.MainButton;
+      mb.offClick(); // очистить прошлые обработчики
+      if (hash === '#home'){
+        mb.setText('Добавить операцию'); mb.show();
+        mb.onClick(()=> { haptic(); alert('Заглушка: форма операции'); });
+      } else if (hash === '#watchlist'){
+        mb.setText('Добавить тикер'); mb.show();
+        mb.onClick(()=> { haptic(); addMockTicker(); });
+      } else if (hash === '#ideas'){
+        mb.setText('Обновить идеи'); mb.show();
+        mb.onClick(()=> { haptic(); loadMockIdeas(); });
+      } else if (hash === '#profile'){
+        mb.setText('Сохранить профиль'); mb.show();
+        mb.onClick(()=> { haptic(); pseudoSaveProfile(); });
+      }
     }
+
+    // ====== Рендеры ======
+    function render(hash){
+      if (hash === '#home') renderHome();
+      if (hash === '#watchlist') renderWatchlist();
+      if (hash === '#ideas') renderIdeas();
+      if (hash === '#profile') renderProfile();
+    }
+
+    function renderHome(){
+      // имитация загрузки p/l и краткого обзора
+      const pill = document.getElementById('pill-pl');
+      const plEl = document.getElementById('pl-val');
+      const brief = document.getElementById('home-brief');
+
+      plEl.textContent = '…';
+      brief.innerHTML = `<div class="skeleton sk-line"></div><div class="skeleton sk-line" style="width:55%"></div>`;
+
+      setTimeout(()=>{
+        if (store.pl == null){
+          // сгенерим фейковый p/l
+          const val = (Math.random()*2-1)*3.7; // от -3.7% до +3.7%
+          store.pl = val;
+        }
+        const v = store.pl;
+        plEl.textContent = (v>=0?'+':'') + v.toFixed(2) + '%';
+        pill.style.borderColor = v>=0 ? 'var(--good)' : 'var(--bad)';
+        pill.style.boxShadow = v>=0 ? '0 0 0 1px var(--good) inset' : '0 0 0 1px var(--bad) inset';
+
+        brief.innerHTML = `
+          <div class="muted">Активов: ${store.watchlist.length || 0}</div>
+          <div class="muted">Риск-профиль: ${store.risk ? mapRisk(store.risk) : 'не выбран'}</div>
+        `;
+      }, 500);
+    }
+
+    function renderWatchlist(){
+      const list = document.getElementById('wl-list');
+      const empty = document.getElementById('wl-empty');
+
+      if (!store.watchlist.length){
+        empty.hidden = false; list.innerHTML = '';
+        return;
+      }
+      empty.hidden = true;
+      list.innerHTML = store.watchlist.map(a => {
+        const chgCls = a.chg >= 0 ? 'chg pos' : 'chg neg';
+        const chgStr = (a.chg>=0?'+':'') + a.chg.toFixed(2) + '%';
+        return `
+          <div class="item">
+            <div><div class="ticker">${a.ticker}</div><div class="muted">$${a.price.toFixed(2)}</div></div>
+            <div class="${chgCls}">${chgStr}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderIdeas(){
+      const list = document.getElementById('ideas-list');
+      const empty = document.getElementById('ideas-empty');
+
+      if (!store.ideas.length){
+        empty.hidden = false; list.innerHTML = '';
+        return;
+      }
+      empty.hidden = true;
+      list.innerHTML = store.ideas.map(id => `
+        <div class="item">
+          <div>
+            <div class="title">${id.title}</div>
+            <div class="muted">тег: ${id.tag} • риск: ${id.risk}</div>
+          </div>
+          <button class="btn ghost" onclick="haptic(); alert('Заглушка: открыть идею');">Открыть</button>
+        </div>
+      `).join('');
+    }
+
+    function renderProfile(){
+      const box = document.getElementById('profile-state');
+      if (!store.risk){
+        box.innerHTML = `<div class="empty">Ещё не настроено. <span class="chip">Выберите риск-профиль</span></div>`;
+      } else {
+        box.innerHTML = `
+          <div class="pill">Текущий риск-профиль: <strong>${mapRisk(store.risk)}</strong></div>
+          <div class="muted" style="margin-top:8px;">(локально, без сервера — для демо)</div>
+        `;
+      }
+    }
+
+    // ====== Действия (моки) ======
+    function addMockTicker(){
+      const sample = ['AAPL','MSFT','NVDA','SPY','TSLA','GOOGL','AMZN','BTC','ETH'];
+      const t = sample[Math.floor(Math.random()*sample.length)];
+      const price = (Math.random()*3000)+10;
+      const chg = (Math.random()*2-1)*5;
+      store.watchlist.push({ticker:t, price, chg});
+      renderWatchlist();
+      if (tg) tg.showPopup({title:'Добавлено', message:`${t} в Watchlist`, buttons:[{type:'ok'}]});
+    }
+
+    function loadMockIdeas(){
+      // имитация загрузки
+      store.ideas = [
+        {title:'Долгосрочно: полупроводники', tag:'growth', risk:'средний'},
+        {title:'Дивидендный фокус', tag:'dividends', risk:'низкий'},
+      ];
+      renderIdeas();
+    }
+
+    function pseudoSaveProfile(){
+      if (!store.risk){
+        if (tg) tg.showPopup({title:'Профиль не выбран', message:'Выберите риск-профиль кнопками ниже', buttons:[{type:'ok'}]});
+        return;
+      }
+      if (tg) tg.showPopup({title:'Сохранено', message:`Риск-профиль: ${mapRisk(store.risk)}`, buttons:[{type:'ok'}]});
+    }
+
+    function mapRisk(r){ return r==='low'?'Консервативный': r==='med'?'Умеренный':'Агрессивный'; }
+
+    // кнопки действий на экранах
+    document.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      const a = btn.dataset.action;
+      haptic();
+      if (a==='add_trade'){ alert('Заглушка: форма операции'); }
+      if (a==='add_ticker'){ addMockTicker(); }
+      if (a==='set_risk_low'){ store.risk='low'; renderProfile(); }
+      if (a==='set_risk_med'){ store.risk='med'; renderProfile(); }
+      if (a==='set_risk_high'){ store.risk='high'; renderProfile(); }
+    });
+
+    // стартовое состояние
+    if (!location.hash) location.hash = '#home';
+    show(location.hash);
+
+    // (позже) здесь легко добавить реальный обмен с ботом:
+    // tg.sendData(JSON.stringify({action:'save_profile', risk: store.risk}))
+    // на бэке: распарсить JSON и сохранить.
   </script>
 </body>
 </html>
