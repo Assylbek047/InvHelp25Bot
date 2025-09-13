@@ -2,64 +2,99 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>My Telegram Mini App</title>
+  <title>Мой Mini App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <style>
-    html, body { margin:0; padding:0; height:100%; font-family: Arial, sans-serif; background:#111; color:#fff; }
-    .wrap { min-height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; padding:24px; box-sizing:border-box; }
-    h1 { margin:0; font-size:28px; }
-    .info { opacity:.8; text-align:center; }
-    button { font-size:18px; padding:16px 24px; border:0; border-radius:12px; cursor:pointer; }
-    #sendBtn { font-weight:700; }
-    .badge { font-family: monospace; background:#222; padding:6px 10px; border-radius:8px; }
-    .foot { position:fixed; bottom:10px; left:0; right:0; text-align:center; opacity:.6; font-size:12px; }
+    :root[data-theme="dark"]  { --bg:#111; --fg:#fff; --btn:#2a85ff; --muted:#aaa; }
+    :root[data-theme="light"] { --bg:#fff; --fg:#111; --btn:#2a85ff; --muted:#666; }
+
+    * { box-sizing: border-box; }
+    html, body { height:100%; margin:0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .wrap { width: 100%; max-width: 640px; display:flex; flex-direction:column; gap:16px; align-items:center; text-align:center; }
+    h1 { margin:0 0 4px; font-size:28px; }
+    .muted { color: var(--muted); font-size:14px; }
+    button {
+      padding: 14px 20px;
+      font-size: 16px;
+      background: var(--btn);
+      color: #fff;
+      border: 0; border-radius: 12px;
+      cursor: pointer;
+    }
+    .card {
+      width:100%;
+      background: rgba(127,127,127,0.08);
+      border-radius: 12px;
+      padding: 12px 14px;
+      text-align: left;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      white-space: pre-wrap;
+    }
   </style>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-  <div class="wrap">
+  <main class="wrap">
     <h1>Мой Mini App</h1>
-    <div class="info">
-      Привет, <span id="user-name">гость</span>!<br/>
-      <span class="badge">build: v=CHECK-1</span>
-    </div>
+    <p>Привет, <span id="user-name">гость</span>!</p>
+
+    <!-- твоя кнопка остаётся и работает как раньше -->
     <button id="sendBtn">Отправить боту</button>
-    <pre id="debug" style="white-space:pre-wrap; text-align:left; max-width:640px;"></pre>
-  </div>
-  <div class="foot">Если не видишь кнопку — значит открыта не эта версия страницы.</div>
+
+    <!-- небольшой лог ниже — поможет понять, внутри ли мы Telegram -->
+    <div id="log" class="card" aria-live="polite"></div>
+    <div class="muted">Если не видишь синюю системную кнопку внизу — открой Mini App через меню бота.</div>
+  </main>
 
   <script>
-    const log = (m)=>{ const el=document.getElementById('debug'); el.textContent += m + "\n"; };
+    // утилита для лога
+    const log = (m) => {
+      const el = document.getElementById('log');
+      el.textContent += (el.textContent ? "\n" : "") + m;
+    };
 
-    let tg;
-    try {
-      tg = window.Telegram && window.Telegram.WebApp;
-      if (tg) {
-        tg.ready();
-        // tg.expand(); // не обязательно, но можно
-        const u = tg.initDataUnsafe?.user;
-        document.getElementById('user-name').textContent = u ? (u.first_name || 'пользователь') : 'гость';
-        log('WebApp OK. Platform: ' + (tg.platform || 'unknown'));
-      } else {
-        log('⚠️ WebApp объект недоступен (вероятно, страница открыта ВНЕ Telegram).');
-      }
-    } catch(e) {
-      log('ERR WebApp: ' + e.message);
+    const tg = window.Telegram && window.Telegram.WebApp;
+
+    if (tg) {
+      // 1) готовим WebApp и подгоняем высоту
+      tg.ready();
+      try { tg.expand(); } catch(_) {}
+
+      // 2) автотема под клиент Телеграма
+      document.documentElement.dataset.theme = tg.colorScheme || 'dark';
+
+      // 3) показываем имя пользователя, если есть
+      const u = tg.initDataUnsafe && tg.initDataUnsafe.user;
+      document.getElementById('user-name').textContent = u ? (u.first_name || 'пользователь') : 'гость';
+
+      // 4) системная MainButton внизу (визуал как у «взрослых» mini app)
+      tg.MainButton.setText('Отправить боту');
+      tg.MainButton.show();
+
+      // 5) твоя кнопка: при клике шлём данные боту
+      const send = () => {
+        try { tg.HapticFeedback.impactOccurred('light'); } catch(_) {}
+        // оставляем твой текущий payload; позже сможем заменить на JSON
+        tg.sendData('Hello from Mini App!');
+        log('sendData отправлено: Hello from Mini App!');
+      };
+
+      document.getElementById('sendBtn').addEventListener('click', send);
+      tg.MainButton.onClick(send);
+
+      log('WebApp: OK. Платформа: ' + (tg.platform || 'unknown'));
+    } else {
+      // страница открыта НЕ в Telegram (обычный браузер)
+      document.getElementById('user-name').textContent = 'гость';
+      log('⚠️ WebApp объект недоступен — это не Telegram. Открой страницу из меню бота.');
     }
-
-    document.getElementById('sendBtn').addEventListener('click', () => {
-      try {
-        const payload = 'Hello from Mini App!';
-        if (!tg) {
-          alert('Похоже, это НЕ Telegram. Открой страницу из меню бота.');
-          return;
-        }
-        tg.sendData(payload);
-        log('sendData отправлено: ' + payload);
-      } catch (e) {
-        log('ERR sendData: ' + e.message);
-      }
-    });
   </script>
 </body>
 </html>
