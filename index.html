@@ -2,24 +2,98 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Инвест-ассистент</title>
+  <title>Private Banking</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <!-- Премиальные шрифты -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cormorant+Garamond:wght@400;600&family=Great+Vibes&family=Inter:wght@300;500&display=swap" rel="stylesheet">
+
   <style>
-    :root[data-theme="dark"]  { --bg:#0f1115; --fg:#f5f7fb; --muted:#9aa4b2; --card:#171a21; --btn:#2a85ff; --good:#28a745; --bad:#d9534f; --border:#222733; }
-    :root[data-theme="light"] { --bg:#ffffff; --fg:#0f1115; --muted:#5b6470; --card:#f1f3f6; --btn:#2a85ff; --good:#1e8e3e; --bad:#c0392b; --border:#e3e7ef; }
+    /* ===== Палитра Private Banking ===== */
+    :root[data-theme="dark"]  { --bg:#0B0F19; --fg:#EAE8E1; --muted:#B2B2B2; --card:#121620; --btn:#C49E63; --good:#1E8E3E; --bad:#C0392B; --border:#2a2f3b; }
+    :root[data-theme="light"] { --bg:#F6F5F0; --fg:#0F1115; --muted:#5B6470; --card:#ffffff; --btn:#A67C52; --good:#1E8E3E; --bad:#C0392B; --border:#e3e7ef; }
 
     * { box-sizing:border-box; }
     html, body { height:100%; margin:0; }
-    body { background:var(--bg); color:var(--fg); font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Inter,Arial,sans-serif; }
-    .app { max-width: 760px; margin: 0 auto; padding: 16px 16px 90px; }
-    h1 { margin: 4px 0 12px; font-size: 22px; }
-    .muted { color: var(--muted); }
-    .row { display:grid; gap:12px; }
-    @media (min-width:640px){ .row.cols-2{ grid-template-columns:1fr 1fr; } }
+    body { background:var(--bg); color:var(--fg); font-family: Inter, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
 
+    /* ===== Обложка (welcome) ===== */
+    .screen { display:none; min-height:100svh; }
+    .screen.active { display:block; }
+    .welcome {
+      position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      padding:24px; text-align:center;
+      background: radial-gradient(1200px 800px at 60% -10%, #0f1c2e 0%, transparent 60%), linear-gradient(160deg, #0B0F19 0%, #000 90%);
+      overflow:hidden;
+    }
+    .welcome h1 {
+      font-family:'Cinzel Decorative', serif; color:var(--btn); font-size:44px; letter-spacing:.5px; margin:0 0 6px;
+    }
+    .welcome p {
+      font-family:'Great Vibes', cursive; color:var(--muted); font-size:22px; margin:0 0 28px;
+    }
+    .welcome .enter {
+      background:var(--btn); color:#fff; border:0; border-radius:14px; padding:12px 22px; font-size:18px; cursor:pointer;
+      box-shadow:0 10px 28px rgba(0,0,0,.35);
+    }
+    /* Бледные тиснёные узоры (астролябия+маятник) как watermark */
+    .welcome::before, .welcome::after{
+      content:""; position:absolute; inset:auto; pointer-events:none; opacity:.18; filter:grayscale(0.2) contrast(1.1);
+      background-repeat:no-repeat; background-size:contain;
+    }
+    /* Астролябия-компас слева */
+    .welcome::before{
+      left:-120px; bottom:-80px; width:520px; height:520px;
+      background-image:url('data:image/svg+xml;utf8, \
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600"> \
+          <defs><linearGradient id="g" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"%23C49E63\" stop-opacity=\".25\"/><stop offset=\"1\" stop-color=\"%23C49E63\" stop-opacity=\".05\"/></linearGradient></defs> \
+          <circle cx=\"300\" cy=\"300\" r=\"280\" fill=\"none\" stroke=\"url(%23g)\" stroke-width=\"1.5\"/> \
+          <circle cx=\"300\" cy=\"300\" r=\"210\" fill=\"none\" stroke=\"url(%23g)\" stroke-width=\"1.2\"/> \
+          <circle cx=\"300\" cy=\"300\" r=\"140\" fill=\"none\" stroke=\"url(%23g)\" stroke-width=\"1.2\"/> \
+          <g stroke=\"url(%23g)\" stroke-width=\"1\"> \
+            <line x1=\"300\" y1=\"20\" x2=\"300\" y2=\"580\"/> \
+            <line x1=\"20\"  y1=\"300\" x2=\"580\" y2=\"300\"/> \
+            <path d=\"M60,300 A240,240 0 0 1 540,300\" fill=\"none\"/> \
+            <path d=\"M300,60 A240,240 0 0 1 300,540\" fill=\"none\"/> \
+          </g> \
+          <circle cx=\"300\" cy=\"300\" r=\"6\" fill=\"%23C49E63\" fill-opacity=\".3\"/> \
+          <path d=\"M300,300 L520,270 L300,330 Z\" fill=\"%23C49E63\" fill-opacity=\".08\"/> \
+        </svg>');
+    }
+    /* Маятник справа */
+    .welcome::after{
+      right:-80px; top:-40px; width:420px; height:420px;
+      background-image:url('data:image/svg+xml;utf8, \
+        <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 400\"> \
+          <defs><linearGradient id=\"g2\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"%23C49E63\" stop-opacity=\".22\"/><stop offset=\"1\" stop-color=\"%23C49E63\" stop-opacity=\".06\"/></linearGradient></defs> \
+          <path d=\"M200,40 C220,150 260,240 320,320\" fill=\"none\" stroke=\"url(%23g2)\" stroke-width=\"2\"/> \
+          <circle cx=\"200\" cy=\"40\" r=\"8\" fill=\"%23C49E63\" fill-opacity=\".25\"/> \
+          <circle cx=\"320\" cy=\"320\" r=\"28\" fill=\"%23C49E63\" fill-opacity=\".12\" stroke=\"url(%23g2)\"/> \
+        </svg>');
+    }
+
+    /* ===== Верхняя плавающая кнопка (FAB) и вкладки ===== */
+    .app { max-width:760px; margin:0 auto; padding:16px 16px 32px; }
+    .tabs { display:flex; gap:8px; margin:6px 0 14px; position:sticky; top:calc(env(safe-area-inset-top) + 8px); z-index:5; }
+    .tab { padding:8px 12px; border-radius:999px; border:1px solid var(--border); color:var(--muted); cursor:pointer; backdrop-filter:saturate(120%) blur(8px); background:color-mix(in oklab, var(--card) 85%, transparent); font-family:'Cormorant Garamond', serif; }
+    .tab.active { color: var(--fg); background:var(--card); }
+
+    .fab {
+      position:fixed; top:calc(env(safe-area-inset-top) + 8px); right:12px; z-index:10;
+      display:inline-flex; align-items:center; gap:8px; padding:12px 14px;
+      font-size:15px; font-weight:600; background:var(--btn); color:#fff; border:0; border-radius:12px;
+      box-shadow:0 8px 24px rgba(0,0,0,.25); cursor:pointer; transform:translateY(-6px); opacity:0;
+      transition:opacity .28s ease, transform .28s ease, box-shadow .2s ease;
+    }
+    .fab.show { opacity:1; transform:translateY(0); }
+    .fab:active { box-shadow:0 6px 18px rgba(0,0,0,.22); transform:translateY(1px); }
+
+    /* ===== Карточки/контент ===== */
+    h1 { margin:4px 0 12px; font-size:22px; font-family:'Cormorant Garamond', serif; }
+    .muted { color:var(--muted); }
+    .row { display:grid; gap:12px; } @media (min-width:640px){ .row.cols-2{ grid-template-columns:1fr 1fr; } }
     .pill { display:inline-flex; align-items:center; gap:8px; padding:10px 14px; background:var(--card); border-radius:12px; border:1px solid var(--border); }
     .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:14px; }
-    .title { font-weight:600; }
+    .title { font-weight:600; font-family:'Cormorant Garamond', serif; color:var(--btn); }
     .cta { display:flex; gap:10px; flex-wrap:wrap; }
     .btn { background:var(--btn); color:#fff; border:0; border-radius:12px; padding:12px 14px; font-size:15px; cursor:pointer; }
     .btn.ghost { background:transparent; color:var(--fg); border:1px solid var(--border); }
@@ -28,312 +102,264 @@
     .ticker { font-weight:700; letter-spacing:.5px; }
     .chg.pos { color: var(--good); } .chg.neg { color: var(--bad); }
 
-    /* табы (верхняя навигация внутри апп) */
-    .tabs { display:flex; gap:8px; margin: 6px 0 14px; }
-    .tab { padding:8px 12px; border-radius:999px; border:1px solid var(--border); color:var(--muted); cursor:pointer; }
-    .tab.active { color: var(--fg); background:var(--card); }
+    /* Плавные переходы экранов */
+    section.view { opacity:0; transform:translateY(6px); transition:opacity .24s ease, transform .24s ease; }
+    section.view.active { opacity:1; transform:none; }
 
-    /* skeleton */
-    .skeleton { position:relative; overflow:hidden; background:linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent); }
-    .sk-card { height:64px; border-radius:12px; background:var(--card); border:1px solid var(--border); }
+    /* Скелетоны / пустые состояния */
+    .skeleton { position:relative; overflow:hidden; background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent); }
     .sk-line { height:12px; width:70%; border-radius:6px; background:var(--card); border:1px solid var(--border); margin:8px 0; }
-
-    /* пустые состояния */
     .empty { text-align:center; padding:24px 12px; color:var(--muted); }
     .chip { display:inline-block; padding:6px 10px; border-radius:999px; border:1px dashed var(--border); color:var(--muted); }
 
-    /* тех.штамп */
     .build { text-align:center; margin-top:8px; color:var(--muted); font-size:12px; }
   </style>
+
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-  <div class="app">
-    <!-- Header -->
-    <h1>Инвест-ассистент</h1>
-    <div class="tabs" id="tabs">
-      <div class="tab" data-route="#home">Главная</div>
-      <div class="tab" data-route="#watchlist">Watchlist</div>
-      <div class="tab" data-route="#ideas">Идеи</div>
-      <div class="tab" data-route="#profile">Профиль</div>
+  <!-- FAB (верхний правый угол) -->
+  <button id="fab" class="fab" aria-label="Главное действие">Добавить операцию</button>
+
+  <!-- ОБЛОЖКА -->
+  <div id="welcome" class="screen welcome active">
+    <h1>Private Banking</h1>
+    <p>Ваш персональный инвестиционный ассистент</p>
+    <button class="enter" onclick="enterApp()">Войти</button>
+  </div>
+
+  <!-- ПРИЛОЖЕНИЕ -->
+  <div id="app" class="screen" hidden>
+    <div class="app">
+      <h1>Инвест-ассистент</h1>
+      <div class="tabs" id="tabs">
+        <div class="tab" data-route="#home">Главная</div>
+        <div class="tab" data-route="#watchlist">Портфель</div>
+        <div class="tab" data-route="#ideas">Идеи</div>
+        <div class="tab" data-route="#profile">Профиль</div>
+      </div>
+
+      <!-- ЭКРАНЫ -->
+      <section id="home" class="view" hidden>
+        <div class="row cols-2">
+          <div class="card">
+            <div class="title">Портфель сегодня</div>
+            <div class="pill" id="pill-pl">
+              <span>Дневной P/L:</span>
+              <strong id="pl-val">—</strong>
+            </div>
+            <div class="build muted" id="pl-note">обновляется при входе</div>
+          </div>
+          <div class="card">
+            <div class="title">Быстрые действия</div>
+            <div class="cta">
+              <button class="btn" data-action="add_trade">Внести операцию</button>
+              <button class="btn ghost" data-action="add_ticker">Добавить тикер</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px;">
+          <div class="title">Краткий обзор</div>
+          <div class="row" id="home-brief">
+            <div class="skeleton sk-line"></div>
+            <div class="skeleton sk-line" style="width:50%"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="watchlist" class="view" hidden>
+        <div class="card">
+          <div class="title">Мой Watchlist</div>
+          <div id="wl-empty" class="empty" hidden>
+            Пока пусто. <span class="chip">Добавьте первый тикер</span>
+          </div>
+          <div class="list" id="wl-list"></div>
+        </div>
+      </section>
+
+      <section id="ideas" class="view" hidden>
+        <div class="card">
+          <div class="title">Идеи</div>
+          <div id="ideas-list" class="list"></div>
+          <div id="ideas-empty" class="empty" hidden>Идей пока нет — загляните позже</div>
+        </div>
+      </section>
+
+      <section id="profile" class="view" hidden>
+        <div class="card">
+          <div class="title">Профиль и риск</div>
+          <div id="profile-state">
+            <div class="empty">
+              Ещё не настроено. <span class="chip">Выберите риск-профиль</span>
+            </div>
+          </div>
+          <div class="cta" style="margin-top:10px;">
+            <button class="btn" data-action="set_risk_low">Консервативный</button>
+            <button class="btn ghost" data-action="set_risk_med">Умеренный</button>
+            <button class="btn ghost" data-action="set_risk_high">Агрессивный</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="build">build: private-banking-welcome+fab</div>
     </div>
-
-    <!-- Screens -->
-    <section id="home" hidden>
-      <div class="row cols-2">
-        <div class="card">
-          <div class="title">Портфель сегодня</div>
-          <div class="pill" id="pill-pl">
-            <span>Дневной P/L:</span>
-            <strong id="pl-val">—</strong>
-          </div>
-          <div class="build muted" id="pl-note">обновляется при входе</div>
-        </div>
-        <div class="card">
-          <div class="title">Быстрые действия</div>
-          <div class="cta">
-            <button class="btn" data-action="add_trade">Внести операцию</button>
-            <button class="btn ghost" data-action="add_ticker">Добавить тикер</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:12px;">
-        <div class="title">Краткий обзор</div>
-        <div class="row" id="home-brief">
-          <div class="skeleton sk-line"></div>
-          <div class="skeleton sk-line" style="width:50%"></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="watchlist" hidden>
-      <div class="card">
-        <div class="title">Мой Watchlist</div>
-        <div id="wl-empty" class="empty" hidden>
-          Пока пусто. <span class="chip">Добавьте первый тикер</span>
-        </div>
-        <div class="list" id="wl-list"></div>
-      </div>
-    </section>
-
-    <section id="ideas" hidden>
-      <div class="card">
-        <div class="title">Идеи</div>
-        <div id="ideas-list" class="list"></div>
-        <div id="ideas-empty" class="empty" hidden>Идей пока нет — загляните позже</div>
-      </div>
-    </section>
-
-    <section id="profile" hidden>
-      <div class="card">
-        <div class="title">Профиль и риск</div>
-        <div id="profile-state">
-          <div class="empty">
-            Ещё не настроено. <span class="chip">Выберите риск-профиль</span>
-          </div>
-        </div>
-        <div class="cta" style="margin-top:10px;">
-          <button class="btn" data-action="set_risk_low">Консервативный</button>
-          <button class="btn ghost" data-action="set_risk_med">Умеренный</button>
-          <button class="btn ghost" data-action="set_risk_high">Агрессивный</button>
-        </div>
-      </div>
-    </section>
-
-    <div class="build">build: ui-skeleton-1</div>
   </div>
 
   <script>
-    // ====== Telegram boot ======
+    // Telegram boot
     const tg = window.Telegram && window.Telegram.WebApp;
     if (tg) {
       tg.ready();
-      try { tg.expand(); } catch (_) {}
+      try { tg.expand(); } catch(_) {}
       document.documentElement.dataset.theme = tg.colorScheme || 'dark';
+      try { tg.MainButton.hide(); } catch(_) {}
     } else {
       document.documentElement.dataset.theme = 'dark';
     }
+    const haptic = (t='light') => { try { tg.HapticFeedback.impactOccurred(t); } catch(_){} };
 
-    const haptic = (type='light') => { try { tg.HapticFeedback.impactOccurred(type); } catch(_){} };
+    // Store (моки)
+    const store = { pl:null, watchlist:[], ideas:[], risk:null };
 
-    // ====== Simple Store (моки в памяти) ======
-    const store = {
-      pl: null,
-      watchlist: [],   // {ticker:'AAPL', price: 231.1, chg:+0.8}
-      ideas: [],       // {title:'Идея по ...', tag:'рост', risk:'средний'}
-      risk: null,      // 'low'|'med'|'high'
-    };
+    // FAB
+    const fab = document.getElementById('fab');
+    function setFab(text, onClick){ fab.textContent=text; fab.onclick=()=>{haptic(); onClick&&onClick();}; }
+    function showFab(show=true){ fab.classList.toggle('show', show); }
 
-    // ====== Router ======
+    // Router
     const routes = ['#home','#watchlist','#ideas','#profile'];
-    const show = (hash) => {
+    function show(hash){
       if (!routes.includes(hash)) hash = '#home';
-      // tabs
-      document.querySelectorAll('.tab').forEach(t => {
-        t.classList.toggle('active', t.dataset.route === hash);
-      });
-      // screens
+
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.route===hash));
       routes.forEach(r => {
         const el = document.querySelector(r);
-        if (el) el.hidden = (r !== hash);
+        if (!el) return;
+        const active = (r===hash);
+        el.hidden = !active;
+        el.classList.toggle('active', active);
       });
-      // BackButton: показываем только не на #home
-      if (tg && tg.BackButton) {
-        (hash !== '#home') ? tg.BackButton.show() : tg.BackButton.hide();
-      }
-      // MainButton текст под экран
-      setupMainButton(hash);
-      // первый рендер данных
+      if (tg && tg.BackButton) (hash!=='#home') ? tg.BackButton.show() : tg.BackButton.hide();
+
+      if (hash==='#home'){ setFab('Добавить операцию', ()=>alert('Заглушка: форма операции')); showFab(true); }
+      else if (hash==='#watchlist'){ setFab('Добавить тикер', addMockTicker); showFab(true); }
+      else if (hash==='#ideas'){ setFab('Обновить идеи', loadMockIdeas); showFab(true); }
+      else if (hash==='#profile'){ setFab('Сохранить профиль', pseudoSaveProfile); showFab(true); }
+
       render(hash);
-    };
-
-    window.addEventListener('hashchange', () => show(location.hash));
-    document.getElementById('tabs').addEventListener('click', (e)=>{
-      const tab = e.target.closest('.tab'); if (!tab) return;
-      location.hash = tab.dataset.route;
-      haptic();
-    });
-    if (tg && tg.BackButton) tg.BackButton.onClick(()=> { history.back(); haptic(); });
-
-    // ====== MainButton поведение под маршрут ======
-    function setupMainButton(hash){
-      if (!tg) return;
-      const mb = tg.MainButton;
-      mb.offClick(); // очистить прошлые обработчики
-      if (hash === '#home'){
-        mb.setText('Добавить операцию'); mb.show();
-        mb.onClick(()=> { haptic(); alert('Заглушка: форма операции'); });
-      } else if (hash === '#watchlist'){
-        mb.setText('Добавить тикер'); mb.show();
-        mb.onClick(()=> { haptic(); addMockTicker(); });
-      } else if (hash === '#ideas'){
-        mb.setText('Обновить идеи'); mb.show();
-        mb.onClick(()=> { haptic(); loadMockIdeas(); });
-      } else if (hash === '#profile'){
-        mb.setText('Сохранить профиль'); mb.show();
-        mb.onClick(()=> { haptic(); pseudoSaveProfile(); });
-      }
     }
 
-    // ====== Рендеры ======
+    // Screens render
     function render(hash){
-      if (hash === '#home') renderHome();
-      if (hash === '#watchlist') renderWatchlist();
-      if (hash === '#ideas') renderIdeas();
-      if (hash === '#profile') renderProfile();
+      if (hash==='#home') renderHome();
+      if (hash==='#watchlist') renderWatchlist();
+      if (hash==='#ideas') renderIdeas();
+      if (hash==='#profile') renderProfile();
     }
-
     function renderHome(){
-      // имитация загрузки p/l и краткого обзора
-      const pill = document.getElementById('pill-pl');
-      const plEl = document.getElementById('pl-val');
-      const brief = document.getElementById('home-brief');
-
-      plEl.textContent = '…';
-      brief.innerHTML = `<div class="skeleton sk-line"></div><div class="skeleton sk-line" style="width:55%"></div>`;
-
+      const pill=document.getElementById('pill-pl');
+      const plEl=document.getElementById('pl-val');
+      const brief=document.getElementById('home-brief');
+      plEl.textContent='…';
+      brief.innerHTML=`<div class="skeleton sk-line"></div><div class="skeleton sk-line" style="width:55%"></div>`;
       setTimeout(()=>{
-        if (store.pl == null){
-          // сгенерим фейковый p/l
-          const val = (Math.random()*2-1)*3.7; // от -3.7% до +3.7%
-          store.pl = val;
-        }
-        const v = store.pl;
-        plEl.textContent = (v>=0?'+':'') + v.toFixed(2) + '%';
-        pill.style.borderColor = v>=0 ? 'var(--good)' : 'var(--bad)';
-        pill.style.boxShadow = v>=0 ? '0 0 0 1px var(--good) inset' : '0 0 0 1px var(--bad) inset';
-
-        brief.innerHTML = `
-          <div class="muted">Активов: ${store.watchlist.length || 0}</div>
-          <div class="muted">Риск-профиль: ${store.risk ? mapRisk(store.risk) : 'не выбран'}</div>
-        `;
-      }, 500);
+        if (store.pl==null){ const val=(Math.random()*2-1)*3.7; store.pl=val; }
+        const v=store.pl;
+        plEl.textContent=(v>=0?'+':'')+v.toFixed(2)+'%';
+        pill.style.borderColor=v>=0?'var(--good)':'var(--bad)';
+        pill.style.boxShadow=v>=0?'0 0 0 1px var(--good) inset':'0 0 0 1px var(--bad) inset';
+        brief.innerHTML=`<div class="muted">Активов: ${store.watchlist.length||0}</div>
+                         <div class="muted">Риск-профиль: ${store.risk?mapRisk(store.risk):'не выбран'}</div>`;
+      },450);
     }
-
     function renderWatchlist(){
-      const list = document.getElementById('wl-list');
-      const empty = document.getElementById('wl-empty');
-
-      if (!store.watchlist.length){
-        empty.hidden = false; list.innerHTML = '';
-        return;
-      }
-      empty.hidden = true;
-      list.innerHTML = store.watchlist.map(a => {
-        const chgCls = a.chg >= 0 ? 'chg pos' : 'chg neg';
-        const chgStr = (a.chg>=0?'+':'') + a.chg.toFixed(2) + '%';
-        return `
-          <div class="item">
-            <div><div class="ticker">${a.ticker}</div><div class="muted">$${a.price.toFixed(2)}</div></div>
-            <div class="${chgCls}">${chgStr}</div>
-          </div>
-        `;
+      const list=document.getElementById('wl-list');
+      const empty=document.getElementById('wl-empty');
+      if (!store.watchlist.length){ empty.hidden=false; list.innerHTML=''; return; }
+      empty.hidden=true;
+      list.innerHTML=store.watchlist.map(a=>{
+        const chgCls=a.chg>=0?'chg pos':'chg neg';
+        const chgStr=(a.chg>=0?'+':'')+a.chg.toFixed(2)+'%';
+        return `<div class="item"><div><div class="ticker">${a.ticker}</div>
+                <div class="muted">$${a.price.toFixed(2)}</div></div>
+                <div class="${chgCls}">${chgStr}</div></div>`;
       }).join('');
     }
-
     function renderIdeas(){
-      const list = document.getElementById('ideas-list');
-      const empty = document.getElementById('ideas-empty');
-
-      if (!store.ideas.length){
-        empty.hidden = false; list.innerHTML = '';
-        return;
-      }
-      empty.hidden = true;
-      list.innerHTML = store.ideas.map(id => `
+      const list=document.getElementById('ideas-list');
+      const empty=document.getElementById('ideas-empty');
+      if (!store.ideas.length){ empty.hidden=false; list.innerHTML=''; return; }
+      empty.hidden=true;
+      list.innerHTML=store.ideas.map(id=>`
         <div class="item">
-          <div>
-            <div class="title">${id.title}</div>
-            <div class="muted">тег: ${id.tag} • риск: ${id.risk}</div>
-          </div>
+          <div><div class="title">${id.title}</div>
+               <div class="muted">тег: ${id.tag} • риск: ${id.risk}</div></div>
           <button class="btn ghost" onclick="haptic(); alert('Заглушка: открыть идею');">Открыть</button>
-        </div>
-      `).join('');
+        </div>`).join('');
     }
-
     function renderProfile(){
-      const box = document.getElementById('profile-state');
-      if (!store.risk){
-        box.innerHTML = `<div class="empty">Ещё не настроено. <span class="chip">Выберите риск-профиль</span></div>`;
-      } else {
-        box.innerHTML = `
-          <div class="pill">Текущий риск-профиль: <strong>${mapRisk(store.risk)}</strong></div>
-          <div class="muted" style="margin-top:8px;">(локально, без сервера — для демо)</div>
-        `;
-      }
+      const box=document.getElementById('profile-state');
+      box.innerHTML = !store.risk
+        ? `<div class="empty">Ещё не настроено. <span class="chip">Выберите риск-профиль</span></div>`
+        : `<div class="pill">Текущий риск-профиль: <strong>${mapRisk(store.risk)}</strong></div>
+           <div class="muted" style="margin-top:8px;">(локально, без сервера — для демо)</div>`;
     }
 
-    // ====== Действия (моки) ======
+    // Actions (mock)
     function addMockTicker(){
-      const sample = ['AAPL','MSFT','NVDA','SPY','TSLA','GOOGL','AMZN','BTC','ETH'];
-      const t = sample[Math.floor(Math.random()*sample.length)];
-      const price = (Math.random()*3000)+10;
-      const chg = (Math.random()*2-1)*5;
+      const sample=['AAPL','MSFT','NVDA','SPY','TSLA','GOOGL','AMZN','BTC','ETH'];
+      const t=sample[Math.floor(Math.random()*sample.length)];
+      const price=(Math.random()*3000)+10;
+      const chg=(Math.random()*2-1)*5;
       store.watchlist.push({ticker:t, price, chg});
       renderWatchlist();
       if (tg) tg.showPopup({title:'Добавлено', message:`${t} в Watchlist`, buttons:[{type:'ok'}]});
     }
-
     function loadMockIdeas(){
-      // имитация загрузки
-      store.ideas = [
+      store.ideas=[
         {title:'Долгосрочно: полупроводники', tag:'growth', risk:'средний'},
         {title:'Дивидендный фокус', tag:'dividends', risk:'низкий'},
       ];
       renderIdeas();
     }
-
     function pseudoSaveProfile(){
-      if (!store.risk){
-        if (tg) tg.showPopup({title:'Профиль не выбран', message:'Выберите риск-профиль кнопками ниже', buttons:[{type:'ok'}]});
-        return;
-      }
+      if (!store.risk){ if(tg) tg.showPopup({title:'Профиль не выбран', message:'Выберите риск-профиль ниже', buttons:[{type:'ok'}]}); return; }
       if (tg) tg.showPopup({title:'Сохранено', message:`Риск-профиль: ${mapRisk(store.risk)}`, buttons:[{type:'ok'}]});
     }
-
     function mapRisk(r){ return r==='low'?'Консервативный': r==='med'?'Умеренный':'Агрессивный'; }
 
-    // кнопки действий на экранах
+    // Клики по кнопкам с data-action
     document.addEventListener('click', (e)=>{
-      const btn = e.target.closest('button[data-action]');
-      if (!btn) return;
-      const a = btn.dataset.action;
-      haptic();
-      if (a==='add_trade'){ alert('Заглушка: форма операции'); }
-      if (a==='add_ticker'){ addMockTicker(); }
+      const btn=e.target.closest('button[data-action]'); if(!btn) return;
+      const a=btn.dataset.action; haptic();
+      if (a==='add_trade') alert('Заглушка: форма операции');
+      if (a==='add_ticker') addMockTicker();
       if (a==='set_risk_low'){ store.risk='low'; renderProfile(); }
       if (a==='set_risk_med'){ store.risk='med'; renderProfile(); }
       if (a==='set_risk_high'){ store.risk='high'; renderProfile(); }
     });
 
-    // стартовое состояние
-    if (!location.hash) location.hash = '#home';
-    show(location.hash);
+    // Переход с обложки в приложение
+    function enterApp(){
+      document.getElementById('welcome').classList.remove('active');
+      document.getElementById('app').hidden=false;
+      document.getElementById('app').classList.add('active');
+      if (!location.hash) location.hash='#home';
+      show(location.hash);
+      showFab(true);
+    }
 
-    // (позже) здесь легко добавить реальный обмен с ботом:
-    // tg.sendData(JSON.stringify({action:'save_profile', risk: store.risk}))
-    // на бэке: распарсить JSON и сохранить.
+    // Навигация
+    window.addEventListener('hashchange', ()=> show(location.hash));
+    document.getElementById('tabs').addEventListener('click', (e)=>{
+      const tab=e.target.closest('.tab'); if(!tab) return;
+      location.hash=tab.dataset.route; haptic();
+    });
+    if (tg && tg.BackButton) tg.BackButton.onClick(()=>{ history.back(); haptic(); });
+
+    // Если обложку пропускаем (например, после обновления), можно сразу:
+    // enterApp();
   </script>
 </body>
 </html>
