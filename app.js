@@ -1,6 +1,4 @@
 // === БАЗОВЫЕ НАСТРОЙКИ ===
-// Для Telegram/продакшена используй публичный https (ngrok/сервер)
-// Для локального теста можно временно поставить 'http://localhost:8080'
 const API_BASE = 'https://d68e5bf5d4ab.ngrok-free.app';
 
 console.log('[app.js] loaded');
@@ -32,24 +30,94 @@ async function fetchPrice(symbol){
   const url = `${API_BASE}/api/price?symbol=${encodeURIComponent(symbol)}`;
   return cachedFetchJson(url, 30000);
 }
-
-// /api/series ИЛИ фолбэк, если его пока нет на бэке
 async function fetchSeries(symbol, days=30){
   const url = `${API_BASE}/api/series?symbol=${encodeURIComponent(symbol)}&days=${days}`;
   try{
     return await cachedFetchJson(url, 60000);
   }catch(e){
-    // Фолбэк: генерим «историю» вокруг текущей цены, чтобы графики не были пустыми
     const cur = await fetchPrice(symbol).catch(()=>null);
     let p = Number(cur?.price) || 100;
     const now = Date.now();
     const points = Array.from({length: Math.min(365, days)}, (_, i) => {
-      p = p * (1 + (Math.random() - 0.5) * 0.02); // ±1%
+      p = p * (1 + (Math.random() - 0.5) * 0.02);
       const t = now - (days - 1 - i) * 86400000;
       return { t, p: Number(p.toFixed(2)) };
     });
     return { symbol, points, _fallback: true };
   }
+}
+
+// ====== Новости / Инсайты ======
+async function fetchNews(symbol, limit = 3){
+  const url = `${API_BASE}/api/news?symbol=${encodeURIComponent(symbol)}&limit=${limit}`;
+  return cachedFetchJson(url, 60000);
+}
+async function fetchInsights(symbol, limit = 3){
+  const url = `${API_BASE}/api/insights?symbol=${encodeURIComponent(symbol)}&limit=${limit}`;
+  try { return await cachedFetchJson(url, 60000); } catch(_) { return { items: [] }; }
+}
+function sentimentBadge(s){
+  const map = { positive: '👍', neutral: '•', negative: '👎' };
+  const cls = s === 'positive' ? 'pos' : s === 'negative' ? 'neg' : 'muted';
+  return `<span class="badge ${cls}">${map[s] || '•'} ${s || 'neutral'}</span>`;
+}
+function sourceBadge(kind){
+  const k = (kind||'').toLowerCase();
+  const label = k === 'verified' ? 'Проверенный' : 'Слух';
+  const cls = k === 'verified' ? 'badge-ok' : 'badge-warn';
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+function fmtDate(x){
+  const d = new Date(x); if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleString();
+}
+async function renderNews(symbol, targetId, limit = 3){
+  const box = document.getElementById(targetId);
+  if (!box) return;
+  box.innerHTML = '<div class="muted">Новости загружаются…</div>';
+  try{
+    const data = await fetchNews(symbol, limit);
+    const items = data?.items || data || [];
+    if (!items.length){ box.innerHTML = '<div class="muted">Нет новостей</div>'; return; }
+    const html = items.slice(0, limit).map(n => {
+      const title = n.title || 'Без заголовка';
+      const url = n.url || '#';
+      const date = fmtDate(n.published_at || n.time || Date.now());
+      const sent = (n.sentiment || 'neutral').toLowerCase();
+      const ai = n.ai_comment ? `<div class="ai-note">${n.ai_comment.text || n.ai_comment}</div><div class="muted tiny">confidence: ${(n.ai_comment?.confidence || 'med')}</div>` : '';
+      const kind = n.kind || n.source_kind || 'verified';
+      return `<div class="news-item">
+        <a href="${url}" target="_blank" rel="noopener">${title}</a>
+        <div class="news-meta">
+          <span class="muted">${date}</span>
+          ${sourceBadge(kind)}
+          ${sentimentBadge(sent)}
+        </div>
+        ${ai}
+      </div>`;
+    }).join('');
+    box.innerHTML = html;
+  }catch(e){
+    box.innerHTML = '<div class="neg">Новости недоступны</div>';
+  }
+}
+async function renderPortfolioNews(){
+  const box = document.getElementById('news-home');
+  if (!box) return;
+  try{
+    const p = await getPortfolio();
+    const syms = (p?.holdings || []).map(h=>h.symbol).slice(0,3);
+    const symbols = syms.length ? syms : ['BTC','AAPL','GOLD'];
+    box.innerHTML = '';
+    for (const s of symbols){
+      const sectionId = `news-${s}`;
+      const section = document.createElement('div');
+      section.className = 'card';
+      section.innerHTML = `<div class="card-title">${s} — Новости / Инсайты</div><div id="${sectionId}" class="list"></div>`;
+      box.appendChild(section);
+      await renderNews(s, sectionId, 3);
+    }
+  }catch(_){ /* ignore */ }
 }
 
 // ====== Chart.js Helpers ======
@@ -79,7 +147,7 @@ function renderLineChart(canvasId, labels, values){
 }
 
 // ====== Диапазоны ======
-let rangeDays = 7; // 1, 7, 30
+let rangeDays = 7;
 function bindRangePills(){
   document.querySelectorAll('.range-pill').forEach(p=>{
     p.addEventListener('click', async ()=>{
@@ -129,11 +197,11 @@ async function renderCommoditiesTabChart(){
   }catch(e){ console.warn('commod tab chart', e); }
 }
 
-// ====== Списки цен на карточках (loadBlock) ======
+// ====== Списки цен ======
 function renderRows(symbols, targetId){
   const box = document.getElementById(targetId);
   return async () => {
-    if (!box) { console.warn('no target box', targetId); return; }
+    if (!box) return;
     box.innerHTML = '<div class="muted">Загрузка…</div>';
     const parts = await Promise.all(symbols.map(async (s)=>{
       try{
@@ -172,15 +240,11 @@ document.getElementById('tabs').addEventListener('click', async (e)=>{
 // ====== Портфель / баланс ======
 const tg = window.Telegram?.WebApp;
 function setVH() {
-  // берем высоту из Telegram, если есть, иначе из окна
   const h = (tg && tg.viewportHeight ? tg.viewportHeight : window.innerHeight);
   document.documentElement.style.setProperty('--vh', (h / 100) + 'px');
 }
-
 try { tg?.ready(); tg?.expand(); } catch(_) {}
 setVH();
-
-// обновлять при изменении вьюпорта
 tg?.onEvent?.('viewportChanged', setVH);
 window.addEventListener('resize', setVH);
 
@@ -235,6 +299,7 @@ async function refreshAll(){
   await loadBlock(['AAPL','MSFT','SPY'], 'stocks-list');
   await loadBlock(['GOLD','BRENT','WTI'], 'commodities-list');
   await renderBalanceOnHome();
+  await renderPortfolioNews();
 }
 
 document.getElementById('fab').addEventListener('click', async ()=>{
@@ -245,24 +310,19 @@ document.getElementById('fab').addEventListener('click', async ()=>{
 // После «Войти»
 const enterBtn = document.getElementById('enterBtn');
 enterBtn?.addEventListener('click', async () => {
-  document.getElementById('welcome').classList.add('hide');
-  document.body.classList.add('locked');   // пока обложка — без прокрутки
-setTimeout(async () => {
-  welcome.hidden = true;
-  document.getElementById('app').hidden = false;
-
-  try { tg?.expand(); } catch(_) {}
-  setVH();                 // ещё раз применить актуальную высоту
-  window.scrollTo(0, 0);   // гарантированно в начало
-  document.body.classList.remove('locked');
-
-  await refreshAll();
-  await renderHomeCharts();
-}, 260);
+  const welcomeEl = document.getElementById('welcome');
+  welcomeEl?.classList.add('hide');
+  document.body.classList.add('locked');
 
   setTimeout(async () => {
-    document.getElementById('welcome').hidden = true;
-    document.getElementById('app').hidden = false;
+    document.getElementById('welcome')?.setAttribute('hidden', 'true');
+    document.getElementById('app')?.removeAttribute('hidden');
+
+    try { tg?.expand(); } catch(_) {}
+    setVH();
+    window.scrollTo(0, 0);
+    document.body.classList.remove('locked');
+
     await refreshAll();
     await renderHomeCharts();
   }, 260);
