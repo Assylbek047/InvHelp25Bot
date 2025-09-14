@@ -73,3 +73,20 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:"Cinzel",serif}
 }
 .range-pill.active{ background:var(--card); color:var(--fg); }
 .card canvas{ width:100%; max-width:100%; }
+
+/* 1. базовая очистка */
+html, body { height: 100%; margin: 0; }
+
+/* 2. переменная высоты, которую будем обновлять из JS */
+:root { --vh: 1vh; }          /* fallback */
+:root { --vh: 1svh; }         /* новые браузеры */
+
+ /* 3. экраны приложения должны занимать реальную высоту */
+#welcome,
+#app {
+  min-height: calc(var(--vh) * 100);
+}
+
+/* чтобы на обложке не прокручивало фон */
+body.locked { overflow: hidden; }
+
