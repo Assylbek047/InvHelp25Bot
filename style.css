@@ -62,3 +62,6 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:"Cinzel",serif}
 
 /* полное скрытие после анимации */
 #welcome[hidden], #welcome.hide{display:none!important}
+
+/* Canvas адаптивность */
+.card canvas { width:100% !important; height:auto; }
