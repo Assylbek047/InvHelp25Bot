@@ -19,6 +19,25 @@
     #welcome[hidden], .hide { display:none !important; }
     #app { min-height:100svh; position:relative; }
     body, html { margin:0; padding:0; height:100%; }
+
+    /* Доработка приборов */
+    .wm { position:absolute; pointer-events:none; z-index:0; }
+    .wm-astrolabe {
+      left:-100px; bottom:-80px;
+      width:720px; height:720px;
+      background:url('./assets/astrolabe.svg') no-repeat center/contain;
+      opacity:0.35;
+      filter:drop-shadow(0 0 18px rgba(201,168,106,0.6)) sepia(1) saturate(1.2);
+      mix-blend-mode:screen;
+    }
+    .wm-pendulum {
+      right:-70px; top:-60px;
+      width:540px; height:540px;
+      background:url('./assets/pendulum.svg') no-repeat center/contain;
+      opacity:0.35;
+      filter:drop-shadow(0 0 14px rgba(201,168,106,0.5)) sepia(1) saturate(1.2);
+      mix-blend-mode:screen;
+    }
   </style>
 </head>
 <body>
