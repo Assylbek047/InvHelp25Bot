@@ -1,5 +1,5 @@
 // === БАЗОВЫЕ НАСТРОЙКИ ===
-const API_BASE = 'https://d68e5bf5d4ab.ngrok-free.app';
+const API_BASE = 'https://09551a6c76aa.ngrok-free.app';
 
 console.log('[app.js] loaded');
 
