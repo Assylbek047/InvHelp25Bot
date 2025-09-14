@@ -19,7 +19,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,system-ui,-
 .btn-accent{background:var(--accent);color:#0c0c0c;border:none}
 .btn-accent.ghost{background:transparent;color:var(--fg);border:1px solid var(--border)}
 
-.screen{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.screen{position:relative;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
 .brand{font-family:"Cinzel Decorative",serif;font-size:40px;line-height:1.05;text-align:center;color:var(--accent);text-shadow:0 2px 20px rgba(0,0,0,.25)}
 .tagline{font-family:"Great Vibes",cursive;color:var(--muted);margin:10px 0 18px;font-size:20px}
 
@@ -59,3 +59,6 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,system-ui,-
 /* скрываем welcome при уходе */
 #welcome.hide{animation:fadeOut .28s ease forwards}
 @keyframes fadeOut{to{opacity:0;transform:translateY(-6px)}}
+
+/* полное скрытие после анимации */
+#welcome[hidden], #welcome.hide{display:none!important}
