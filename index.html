@@ -2,101 +2,54 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Private Banking</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cormorant+Garamond:wght@400;600&family=Great+Vibes&family=Inter:wght@300;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=pb2" />
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Private Banking — Mini App</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#0f1115; color:#f5f7fb; margin:0; padding:20px; }
+    h1 { font-size:22px; margin-bottom:12px; }
+    .card { background:#171a21; border:1px solid #222733; border-radius:12px; padding:16px; margin-bottom:12px; }
+    .item { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #222733; }
+    .item:last-child { border-bottom:none; }
+    .pos { color:#28a745; }
+    .neg { color:#d9534f; }
+  </style>
 </head>
 <body>
-  <!-- Плавающая кнопка -->
-  <button id="fab" class="fab" aria-label="Главное действие">Добавить операцию</button>
+  <h1>📊 Крипта</h1>
+  <div class="card" id="crypto-list">Загрузка...</div>
 
-  <!-- ОБЛОЖКА -->
-  <section id="welcome" class="screen welcome active">
-    <h1>PRIVATE<br/>BANKING</h1>
-    <p>Ваш персональный инвестиционный ассистент</p>
-    <button class="enter" id="enterBtn">Войти</button>
-  </section>
+  <script>
+    async function loadCrypto() {
+      const coins = ["BTC", "ETH", "SOL"];
+      const list = document.getElementById("crypto-list");
+      list.innerHTML = "⏳ Загружаем данные...";
 
-  <!-- ПРИЛОЖЕНИЕ -->
-  <section id="app" class="screen" hidden>
-    <div class="app-wrap">
-      <div class="app">
-        <h2>Инвест-ассистент</h2>
+      let html = "";
+      for (let c of coins) {
+        try {
+          // ⚡ запрос к твоему API (боту)
+          let res = await fetch(`http://localhost:8080/api/price?symbol=${c}`);
+          let data = await res.json();
 
-        <div class="tabs" id="tabs">
-          <div class="tab" data-route="#home">Главная</div>
-          <div class="tab" data-route="#watchlist">Портфель</div>
-          <div class="tab" data-route="#ideas">Идеи</div>
-          <div class="tab" data-route="#profile">Профиль</div>
-        </div>
+          if (data.error) {
+            html += `<div class="item">${c}: ошибка</div>`;
+            continue;
+          }
 
-        <!-- ЭКРАНЫ -->
-        <section id="home" class="view" hidden>
-          <div class="row cols-2">
-            <div class="card">
-              <div class="title">Портфель сегодня</div>
-              <div class="pill" id="pill-pl">
-                <span>Дневной P/L:</span>
-                <strong id="pl-val">—</strong>
-              </div>
-              <div class="muted tiny" id="pl-note">обновляется при входе</div>
-            </div>
+          let trendClass = data.change_pct > 0 ? "pos" : data.change_pct < 0 ? "neg" : "";
+          html += `<div class="item">
+                     <span>${data.symbol}: $${data.price.toFixed(2)}</span>
+                     <span class="${trendClass}">${data.change_pct.toFixed(2)}%</span>
+                   </div>`;
+        } catch (e) {
+          html += `<div class="item">${c}: нет данных</div>`;
+        }
+      }
+      list.innerHTML = html;
+    }
 
-            <div class="card">
-              <div class="title">Быстрые действия</div>
-              <div class="cta">
-                <button class="btn" data-action="add_trade">Внести операцию</button>
-                <button class="btn ghost" data-action="add_ticker">Добавить тикер</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="card" style="margin-top:12px;">
-            <div class="title">Краткий обзор</div>
-            <div class="row" id="home-brief">
-              <div class="skeleton sk-line"></div>
-              <div class="skeleton sk-line" style="width:55%"></div>
-            </div>
-          </div>
-        </section>
-
-        <section id="watchlist" class="view" hidden>
-          <div class="card">
-            <div class="title">Мой Watchlist</div>
-            <div id="wl-empty" class="empty" hidden>Пока пусто. <span class="chip">Добавьте первый тикер</span></div>
-            <div class="list" id="wl-list"></div>
-          </div>
-        </section>
-
-        <section id="ideas" class="view" hidden>
-          <div class="card">
-            <div class="title">Идеи</div>
-            <div id="ideas-list" class="list"></div>
-            <div id="ideas-empty" class="empty" hidden>Идей пока нет — загляните позже</div>
-          </div>
-        </section>
-
-        <section id="profile" class="view" hidden>
-          <div class="card">
-            <div class="title">Профиль и риск</div>
-            <div id="profile-state">
-              <div class="empty">Ещё не настроено. <span class="chip">Выберите риск-профиль</span></div>
-            </div>
-            <div class="cta" style="margin-top:10px;">
-              <button class="btn" data-action="set_risk_low">Консервативный</button>
-              <button class="btn ghost" data-action="set_risk_med">Умеренный</button>
-              <button class="btn ghost" data-action="set_risk_high">Агрессивный</button>
-            </div>
-          </div>
-        </section>
-
-        <div class="build">build: private-banking (welcome → app, no overlay/no scroll)</div>
-      </div>
-    </div>
-  </section>
-
-  <script src="./app.js?v=pb2" defer></script>
+    // Загружаем сразу при старте
+    loadCrypto();
+  </script>
 </body>
 </html>
