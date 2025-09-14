@@ -65,3 +65,11 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:"Cinzel",serif}
 
 /* Canvas адаптивность */
 .card canvas { width:100% !important; height:auto; }
+
+.range-pill{
+  display:inline-block; margin-left:6px; padding:4px 10px;
+  border:1px solid var(--border); border-radius:999px; cursor:pointer;
+  color:var(--muted); user-select:none;
+}
+.range-pill.active{ background:var(--card); color:var(--fg); }
+.card canvas{ width:100%; max-width:100%; }
