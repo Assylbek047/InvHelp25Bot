@@ -5,51 +5,205 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Private Banking — Mini App</title>
   <style>
-    body { font-family: Arial, sans-serif; background:#0f1115; color:#f5f7fb; margin:0; padding:20px; }
-    h1 { font-size:22px; margin-bottom:12px; }
-    .card { background:#171a21; border:1px solid #222733; border-radius:12px; padding:16px; margin-bottom:12px; }
-    .item { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #222733; }
+    :root {
+      --bg: #0f1115;
+      --fg: #f5f7fb;
+      --muted: #9aa4b2;
+      --card: #171a21;
+      --border: #222733;
+      --accent: #d4af37; /* золотистый */
+      --good: #28a745;
+      --bad: #d9534f;
+    }
+    * { box-sizing: border-box; margin:0; padding:0; }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Cormorant Garamond", serif;
+      min-height: 100vh;
+    }
+
+    /* ====== WELCOME SCREEN ====== */
+    #welcome {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+    }
+    #welcome h1 {
+      font-family: "Cinzel Decorative", serif;
+      font-size: 32px;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    #welcome p {
+      font-family: "Great Vibes", cursive;
+      font-size: 20px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    #enter-btn {
+      background: var(--accent);
+      color: #000;
+      padding: 12px 20px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    /* фоновые watermark-приборы */
+    .watermark {
+      position: absolute;
+      opacity: 0.08;
+      filter: blur(0.4px);
+      pointer-events: none;
+    }
+    .astrolabe {
+      top: 10%;
+      left: -50px;
+      width: 300px;
+    }
+    .pendulum {
+      bottom: -40px;
+      right: -30px;
+      width: 220px;
+    }
+
+    /* ====== APP UI ====== */
+    #app { display:none; padding:16px; max-width:760px; margin:0 auto; }
+    .tabs { display:flex; gap:8px; margin-bottom:16px; }
+    .tab {
+      padding:8px 14px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      cursor:pointer;
+      color:var(--muted);
+    }
+    .tab.active { background:var(--card); color:var(--fg); }
+    section.view { display:none; }
+    section.view.active { display:block; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .item {
+      display:flex; justify-content:space-between;
+      padding:6px 0; border-bottom:1px solid var(--border);
+    }
     .item:last-child { border-bottom:none; }
-    .pos { color:#28a745; }
-    .neg { color:#d9534f; }
+    .pos { color:var(--good); }
+    .neg { color:var(--bad); }
   </style>
 </head>
 <body>
-  <h1>📊 Крипта</h1>
-  <div class="card" id="crypto-list">Загрузка...</div>
+  <!-- ===== WELCOME SCREEN ===== -->
+  <div id="welcome">
+    <h1>Private Banking</h1>
+    <p>Ваш персональный инвестиционный ассистент</p>
+    <button id="enter-btn">Войти</button>
+
+    <!-- watermark-приборы -->
+    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3f/Astrolabe-engraving.svg" class="watermark astrolabe" />
+    <img src="https://upload.wikimedia.org/wikipedia/commons/9/9e/Pendulum_simple.svg" class="watermark pendulum" />
+  </div>
+
+  <!-- ===== APP ===== -->
+  <div id="app">
+    <div class="tabs">
+      <div class="tab active" data-target="home">Главная</div>
+      <div class="tab" data-target="crypto">Crypto</div>
+      <div class="tab" data-target="stocks">Stocks</div>
+      <div class="tab" data-target="commodities">Commodities</div>
+      <div class="tab" data-target="profile">Профиль</div>
+    </div>
+
+    <!-- Главная -->
+    <section id="home" class="view active">
+      <div class="card">
+        <b>Добро пожаловать!</b><br/>
+        Здесь будет баланс портфеля и инсайты.
+      </div>
+    </section>
+
+    <!-- Crypto -->
+    <section id="crypto" class="view">
+      <div class="card"><h3>Криптовалюты</h3><div id="crypto-list">Загрузка...</div></div>
+    </section>
+
+    <!-- Stocks -->
+    <section id="stocks" class="view">
+      <div class="card"><h3>Акции и ETF</h3><div id="stocks-list">Загрузка...</div></div>
+    </section>
+
+    <!-- Commodities -->
+    <section id="commodities" class="view">
+      <div class="card"><h3>Commodities</h3><div id="commodities-list">Загрузка...</div></div>
+    </section>
+
+    <!-- Profile -->
+    <section id="profile" class="view">
+      <div class="card"><h3>Профиль</h3><p>Здесь будут настройки и риск-профиль.</p></div>
+    </section>
+  </div>
 
   <script>
-    async function loadCrypto() {
-      const coins = ["BTC", "ETH", "SOL"];
-      const list = document.getElementById("crypto-list");
-      list.innerHTML = "⏳ Загружаем данные...";
+    // переход с обложки в приложение
+    document.getElementById("enter-btn").onclick = () => {
+      document.getElementById("welcome").style.display = "none";
+      document.getElementById("app").style.display = "block";
+    };
 
+    // переключение вкладок
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        let target = tab.dataset.target;
+        document.querySelectorAll("section.view").forEach(s => s.classList.remove("active"));
+        document.getElementById(target).classList.add("active");
+      });
+    });
+
+    // ====== API ЗАГРУЗКА ======
+    async function loadPrices(symbols, containerId) {
+      const list = document.getElementById(containerId);
+      list.innerHTML = "⏳ Загружаем...";
       let html = "";
-      for (let c of coins) {
+      for (let s of symbols) {
         try {
-          // ⚡ запрос к твоему API (боту)
-          let res = await fetch(`http://localhost:8080/api/price?symbol=${c}`);
+          let res = await fetch(`http://localhost:8080/api/price?symbol=${s}`);
           let data = await res.json();
-
           if (data.error) {
-            html += `<div class="item">${c}: ошибка</div>`;
+            html += `<div class="item">${s}: ошибка</div>`;
             continue;
           }
-
-          let trendClass = data.change_pct > 0 ? "pos" : data.change_pct < 0 ? "neg" : "";
+          let trend = data.change_pct > 0 ? "pos" : data.change_pct < 0 ? "neg" : "";
           html += `<div class="item">
                      <span>${data.symbol}: $${data.price.toFixed(2)}</span>
-                     <span class="${trendClass}">${data.change_pct.toFixed(2)}%</span>
+                     <span class="${trend}">${data.change_pct.toFixed(2)}%</span>
                    </div>`;
-        } catch (e) {
-          html += `<div class="item">${c}: нет данных</div>`;
+        } catch(e) {
+          html += `<div class="item">${s}: нет данных</div>`;
         }
       }
       list.innerHTML = html;
     }
 
-    // Загружаем сразу при старте
-    loadCrypto();
+    // автозагрузка данных
+    loadPrices(["BTC","ETH","SOL"], "crypto-list");
+    loadPrices(["AAPL","MSFT","SPY"], "stocks-list");
+    loadPrices(["GOLD","BRENT","WTI"], "commodities-list");
   </script>
 </body>
 </html>
