@@ -44,7 +44,7 @@
   </style>
 </head>
 <body>
-  <!-- WELCOME -->
+  <!-- WELCOME экран (обложка) -->
   <section id="welcome" class="screen">
     <div class="wm wm-astrolabe"></div>
     <div class="wm wm-pendulum"></div>
@@ -54,13 +54,14 @@
     <button id="enterBtn" class="btn btn-accent">Войти</button>
   </section>
 
-  <!-- APP -->
+  <!-- APP (основное приложение) -->
   <section id="app" class="app" hidden>
     <header class="top">
       <div class="title">Инвест-ассистент</div>
       <button id="fab" class="btn btn-accent ghost">Обновить все</button>
     </header>
 
+    <!-- Табы для навигации -->
     <nav class="tabs" id="tabs">
       <button class="tab active" data-target="home">Главная</button>
       <button class="tab" data-target="crypto">Crypto</button>
@@ -94,7 +95,7 @@
           </div>
         </div>
 
-        <!-- Графики -->
+        <!-- Графики (отрисовываются через Chart.js) -->
         <div class="card">
           <div class="card-title">BTC — 30 дней</div>
           <canvas id="chart-btc" height="120"></canvas>
@@ -145,6 +146,7 @@
     <footer class="build">build: private-banking (welcome → app, tabs, API, watermark, charts)</footer>
   </section>
 
+  <!-- Подключение логики приложения -->
   <script src="./app.js" defer></script>
 </body>
 </html>
