@@ -4,6 +4,56 @@
 // Для продакшена: например, 'https://your-bot-host.tld'
 const API_BASE = 'http://localhost:8080';
 
+// ====== Chart.js Helpers ======
+async function fetchSeries(symbol, days=30){
+  const url = `${API_BASE}/api/series?symbol=${encodeURIComponent(symbol)}&days=${days}`;
+  const r = await fetch(url, { cache:'no-store' });
+  if (!r.ok) throw new Error('series bad status');
+  return r.json(); // {symbol, points:[{t,p},...]}
+}
+
+function toChartData(points){
+  const arr = points.slice(-60);
+  return {
+    labels: arr.map(x => new Date(x.t).toLocaleDateString()),
+    values: arr.map(x => x.p)
+  };
+}
+
+const charts = {};
+function renderLineChart(canvasId, labels, values){
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  if (charts[canvasId]) charts[canvasId].destroy();
+  charts[canvasId] = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [{ data: values, tension: 0.25, borderWidth: 2, pointRadius: 0 }]},
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { x: { display: false }, y: { display: false } }
+    }
+  });
+}
+
+async function renderHomeCharts(){
+  try{
+    const btc = await fetchSeries('BTC', 30);
+    const aapl = await fetchSeries('AAPL', 30);
+    const gold = await fetchSeries('GOLD', 30);
+
+    let d = toChartData(btc.points);
+    renderLineChart('chart-btc', d.labels, d.values);
+
+    d = toChartData(aapl.points);
+    renderLineChart('chart-aapl', d.labels, d.values);
+
+    d = toChartData(gold.points);
+    renderLineChart('chart-gold', d.labels, d.values);
+  }catch(e){
+    console.warn('chart error', e);
+  }
+}
+
 const tg = window.Telegram?.WebApp;
 if (tg) { try { tg.ready(); tg.expand(); tg.MainButton?.hide(); } catch(_){} }
 
@@ -16,6 +66,7 @@ enterBtn?.addEventListener('click', () => {
     document.getElementById('app').hidden = false;
     // авто-подгрузка при входе
     refreshAll();
+    renderHomeCharts();
   }, 260);
 });
 
@@ -35,7 +86,10 @@ document.getElementById('tabs').addEventListener('click', (e)=>{
 });
 
 // FAB «Обновить все»
-document.getElementById('fab').addEventListener('click', refreshAll);
+document.getElementById('fab').addEventListener('click', async ()=>{
+  await refreshAll();
+  await renderHomeCharts();
+});
 
 // ====== ЗАГРУЗКА ДАННЫХ ======
 async function fetchPrice(symbol){
@@ -88,6 +142,3 @@ async function refreshAll(){
   document.getElementById('home-brief').innerHTML =
     `<div class="muted">Разделы обновлены • ${new Date().toLocaleTimeString()}</div>`;
 }
-
-// если кто-то открывает страницу напрямую (вне welcome), можно форснуть автозагрузку:
-// refreshAll();
