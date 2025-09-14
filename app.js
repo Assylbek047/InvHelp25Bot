@@ -1,5 +1,6 @@
 // === БАЗОВЫЕ НАСТРОЙКИ ===
-const API_BASE = 'https://09551a6c76aa.ngrok-free.app';
+const API_BASE = 'curl -i "https://florence-beside-mainstream-myers.trycloudflare.com/api/price?symbol=BTC"
+';
 
 console.log('[app.js] loaded');
 
