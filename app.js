@@ -1,8 +1,7 @@
 // === БАЗОВЫЕ НАСТРОЙКИ ===
-const API_BASE = 'curl -i "https://florence-beside-mainstream-myers.trycloudflare.com/api/price?symbol=BTC"
-';
+const API_BASE = "https://florence-beside-mainstream-myers.trycloudflare.com";
 
-console.log('[app.js] loaded');
+console.log("[app.js] loaded");
 
 // ====== Фронтовый кэш ======
 const cache = {
