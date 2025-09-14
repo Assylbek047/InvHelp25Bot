@@ -1,9 +1,9 @@
 // === БАЗОВЫЕ НАСТРОЙКИ ===
-// Укажи базовый URL своего мини-API бота.
-// Для локального теста: 'http://localhost:8080'
-// Для продакшена: например, 'https://your-bot-host.tld'
-// Для туннеля ngrok используй публичный https-URL, который он выдал:
+// Для Telegram/продакшена используй публичный https (ngrok/сервер)
+// Для локального теста можно временно поставить 'http://localhost:8080'
 const API_BASE = 'https://d68e5bf5d4ab.ngrok-free.app';
+
+console.log('[app.js] loaded');
 
 // ====== Фронтовый кэш ======
 const cache = {
@@ -21,8 +21,9 @@ async function cachedFetchJson(url, ttlMs=30000){
   const hit = cache.get(url, ttlMs);
   if (hit) return hit;
   const r = await fetch(url, {cache:'no-store'});
+  if (!r.ok) throw new Error(`HTTP ${r.status} for ${url}`);
   const j = await r.json();
-  if (r.ok) cache.set(url, j);
+  cache.set(url, j);
   return j;
 }
 
@@ -31,17 +32,33 @@ async function fetchPrice(symbol){
   const url = `${API_BASE}/api/price?symbol=${encodeURIComponent(symbol)}`;
   return cachedFetchJson(url, 30000);
 }
+
+// /api/series ИЛИ фолбэк, если его пока нет на бэке
 async function fetchSeries(symbol, days=30){
   const url = `${API_BASE}/api/series?symbol=${encodeURIComponent(symbol)}&days=${days}`;
-  return cachedFetchJson(url, 60000);
+  try{
+    return await cachedFetchJson(url, 60000);
+  }catch(e){
+    // Фолбэк: генерим «историю» вокруг текущей цены, чтобы графики не были пустыми
+    const cur = await fetchPrice(symbol).catch(()=>null);
+    let p = Number(cur?.price) || 100;
+    const now = Date.now();
+    const points = Array.from({length: Math.min(365, days)}, (_, i) => {
+      p = p * (1 + (Math.random() - 0.5) * 0.02); // ±1%
+      const t = now - (days - 1 - i) * 86400000;
+      return { t, p: Number(p.toFixed(2)) };
+    });
+    return { symbol, points, _fallback: true };
+  }
 }
 
 // ====== Chart.js Helpers ======
 function toChartData(points){
-  const arr = points.slice(-120);
+  const src = Array.isArray(points) ? points : [];
+  const arr = src.slice(-120);
   return {
     labels: arr.map(x => new Date(x.t).toLocaleDateString()),
-    values: arr.map(x => x.p)
+    values: arr.map(x => x?.p ?? null)
   };
 }
 const charts = {};
@@ -70,9 +87,9 @@ function bindRangePills(){
       p.classList.add('active');
       rangeDays = parseInt(p.dataset.days,10) || 7;
       await renderHomeCharts();
-      if (document.getElementById('crypto').classList.contains('active')) await renderCryptoTabChart();
-      if (document.getElementById('stocks').classList.contains('active')) await renderStocksTabChart();
-      if (document.getElementById('commodities').classList.contains('active')) await renderCommoditiesTabChart();
+      if (document.getElementById('crypto')?.classList.contains('active')) await renderCryptoTabChart();
+      if (document.getElementById('stocks')?.classList.contains('active')) await renderStocksTabChart();
+      if (document.getElementById('commodities')?.classList.contains('active')) await renderCommoditiesTabChart();
     });
   });
 }
@@ -112,6 +129,32 @@ async function renderCommoditiesTabChart(){
   }catch(e){ console.warn('commod tab chart', e); }
 }
 
+// ====== Списки цен на карточках (loadBlock) ======
+function renderRows(symbols, targetId){
+  const box = document.getElementById(targetId);
+  return async () => {
+    if (!box) { console.warn('no target box', targetId); return; }
+    box.innerHTML = '<div class="muted">Загрузка…</div>';
+    const parts = await Promise.all(symbols.map(async (s)=>{
+      try{
+        const d = await fetchPrice(s);
+        const cls = d.change_pct>0 ? 'pos' : d.change_pct<0 ? 'neg' : '';
+        return `<div class="item">
+                  <div><b>${d.symbol}</b> — $${Number(d.price).toFixed(2)}</div>
+                  <div class="${cls}">${Number(d.change_pct).toFixed(2)}%</div>
+                </div>`;
+      }catch(_){
+        return `<div class="item"><b>${s}</b> — <span class="neg">нет данных</span></div>`;
+      }
+    }));
+    box.innerHTML = parts.join('');
+  };
+}
+async function loadBlock(symbols, boxId){
+  const run = renderRows(symbols, boxId);
+  await run();
+}
+
 // ====== Табы ======
 document.getElementById('tabs').addEventListener('click', async (e)=>{
   const btn = e.target.closest('.tab'); if(!btn) return;
@@ -119,7 +162,7 @@ document.getElementById('tabs').addEventListener('click', async (e)=>{
   btn.classList.add('active');
   const id = btn.dataset.target;
   document.querySelectorAll('section.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  document.getElementById(id)?.classList.add('active');
 
   if (id==='crypto'){ await loadBlock(['BTC','ETH','SOL'], 'crypto-only'); await renderCryptoTabChart(); }
   if (id==='stocks'){ await loadBlock(['AAPL','MSFT','SPY'], 'stocks-only'); await renderStocksTabChart(); }
