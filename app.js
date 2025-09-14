@@ -2,7 +2,8 @@
 // Укажи базовый URL своего мини-API бота.
 // Для локального теста: 'http://localhost:8080'
 // Для продакшена: например, 'https://your-bot-host.tld'
-const API_BASE = 'http://localhost:8080';
+// Для туннеля ngrok используй публичный https-URL, который он выдал:
+const API_BASE = 'https://d68e5bf5d4ab.ngrok-free.app';
 
 // ====== Chart.js Helpers ======
 async function fetchSeries(symbol, days=30){
