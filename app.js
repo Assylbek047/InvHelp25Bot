@@ -171,6 +171,19 @@ document.getElementById('tabs').addEventListener('click', async (e)=>{
 
 // ====== Портфель / баланс ======
 const tg = window.Telegram?.WebApp;
+function setVH() {
+  // берем высоту из Telegram, если есть, иначе из окна
+  const h = (tg && tg.viewportHeight ? tg.viewportHeight : window.innerHeight);
+  document.documentElement.style.setProperty('--vh', (h / 100) + 'px');
+}
+
+try { tg?.ready(); tg?.expand(); } catch(_) {}
+setVH();
+
+// обновлять при изменении вьюпорта
+tg?.onEvent?.('viewportChanged', setVH);
+window.addEventListener('resize', setVH);
+
 const USER_ID = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id)
   ? String(tg.initDataUnsafe.user.id)
   : 'demo';
@@ -233,6 +246,20 @@ document.getElementById('fab').addEventListener('click', async ()=>{
 const enterBtn = document.getElementById('enterBtn');
 enterBtn?.addEventListener('click', async () => {
   document.getElementById('welcome').classList.add('hide');
+  document.body.classList.add('locked');   // пока обложка — без прокрутки
+setTimeout(async () => {
+  welcome.hidden = true;
+  document.getElementById('app').hidden = false;
+
+  try { tg?.expand(); } catch(_) {}
+  setVH();                 // ещё раз применить актуальную высоту
+  window.scrollTo(0, 0);   // гарантированно в начало
+  document.body.classList.remove('locked');
+
+  await refreshAll();
+  await renderHomeCharts();
+}, 260);
+
   setTimeout(async () => {
     document.getElementById('welcome').hidden = true;
     document.getElementById('app').hidden = false;
