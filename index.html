@@ -4,8 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Private Banking — Mini App</title>
+
+  <!-- Подключение шрифтов -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet">
+
+  <!-- Стили -->
   <link rel="stylesheet" href="./style.css" />
+
+  <!-- Telegram SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <style>
     /* Исправление для чёрного экрана */
     #welcome[hidden], .hide { display:none !important; }
@@ -19,7 +27,7 @@
     <div class="wm wm-astrolabe"></div>
     <div class="wm wm-pendulum"></div>
 
-    <h1 class="brand">PRIVATE<br/>BANKING</h1>
+    <h1 class="brand">Private<br/>Banking</h1>
     <p class="tagline">Ваш персональный инвестиционный ассистент</p>
     <button id="enterBtn" class="btn btn-accent">Войти</button>
   </section>
