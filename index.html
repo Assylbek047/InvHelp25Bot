@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet">
 
   <!-- Стили -->
-  <link rel="stylesheet" href="style.css?v=4" />
+  <link rel="stylesheet" href="style.css?v=5" />
 
   <!-- Telegram SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -48,34 +48,60 @@
 
     <main>
       <section id="home" class="view active">
-        <div class="card top-news">
-          <div class="card-title">Новости / Инсайты</div>
-          <div id="news-home" class="news-list"></div>
-        </div>
-        <!-- остальной контент Главной -->
-      </section>
+  <!-- Новости / Инсайты -->
+  <div class="card top-news">
+    <div class="card-title">Новости / Инсайты</div>
+    <div id="news-home" class="news-list"></div>
+  </div>
+
+  <!-- Сводка -->
+  <div class="card">
+    <div class="card-title">Сводка</div>
+    <div id="home-brief" class="list">
+      <div class="sk sk-line"></div>
+      <div class="sk w50"></div>
+    </div>
+  </div>
+
+  <!-- Графики на главной -->
+  <div class="grid">
+    <div class="card"><div class="card-title">BTC — 30 дней</div><canvas id="chart-btc"></canvas></div>
+    <div class="card"><div class="card-title">AAPL — 30 дней</div><canvas id="chart-aapl"></canvas></div>
+    <div class="card"><div class="card-title">GOLD — 30 дней</div><canvas id="chart-gold"></canvas></div>
+  </div>
+
+  <!-- Списки цен -->
+  <div class="card"><div class="card-title">Крипта</div><div id="crypto-list" class="list"></div></div>
+  <div class="card"><div class="card-title">Акции / ETF</div><div id="stocks-list" class="list"></div></div>
+  <div class="card"><div class="card-title">Commodities</div><div id="commodities-list" class="list"></div></div>
+</section>
 
       <section id="crypto" class="view">
-        <div class="card top-news">
-          <div class="card-title">Новости (Crypto)</div>
-          <div id="news-crypto" class="news-list"></div>
-        </div>
-        <!-- остальное -->
-      </section>
+  <div class="card top-news">
+    <div class="card-title">Новости (Crypto)</div>
+    <div id="news-crypto" class="news-list"></div>
+  </div>
+  <div class="card"><div class="card-title">Котировки</div><div id="crypto-only" class="list"></div></div>
+  <div class="card"><div class="card-title">BTC — график</div><canvas id="chart-btc-tab"></canvas></div>
+</section>
 
       <section id="stocks" class="view">
-        <div class="card top-news">
-          <div class="card-title">Новости (Stocks)</div>
-          <div id="news-stocks" class="news-list"></div>
-        </div>
-      </section>
+  <div class="card top-news">
+    <div class="card-title">Новости (Stocks)</div>
+    <div id="news-stocks" class="news-list"></div>
+  </div>
+  <div class="card"><div class="card-title">Котировки</div><div id="stocks-only" class="list"></div></div>
+  <div class="card"><div class="card-title">AAPL — график</div><canvas id="chart-aapl-tab"></canvas></div>
+</section>
 
       <section id="commodities" class="view">
-        <div class="card top-news">
-          <div class="card-title">Новости (Commodities)</div>
-          <div id="news-commodities" class="news-list"></div>
-        </div>
-      </section>
+  <div class="card top-news">
+    <div class="card-title">Новости (Commodities)</div>
+    <div id="news-commodities" class="news-list"></div>
+  </div>
+  <div class="card"><div class="card-title">Котировки</div><div id="commodities-only" class="list"></div></div>
+  <div class="card"><div class="card-title">GOLD — график</div><canvas id="chart-gold-tab"></canvas></div>
+</section>
 
       <section id="profile" class="view">
         <div class="card">
@@ -88,6 +114,6 @@
     <footer class="build">build: private-banking (welcome → app, tabs, API)</footer>
   </section>
 
-  <script src="app.js?v=16" defer></script>
+  <script src="app.js?v=17" defer></script>
 </body>
 </html>
