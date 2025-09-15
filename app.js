@@ -1,5 +1,5 @@
 // === БАЗОВЫЕ НАСТРОЙКИ ===
-const API_BASE = "https://florence-beside-mainstream-myers.trycloudflare.com";
+const API_BASE = "http://localhost:8080";
 
 console.log("[app.js] loaded");
 
