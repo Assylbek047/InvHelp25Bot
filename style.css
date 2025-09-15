@@ -1,3 +1,10 @@
+.top-news{
+  position:sticky;
+  top:calc(env(safe-area-inset-top) + 52px);
+  z-index:10;
+  margin-bottom:16px;
+}
+
 :root{
   --bg:#0d0f14; --fg:#f5f7fb; --muted:#c0a87a;
   --card:#171a21; --border:#222733;
@@ -153,7 +160,6 @@ body.locked { overflow: hidden; }
   color:var(--muted);
   margin-top:4px;
 }
-
 
 /* === FIX: делаем ссылки новостей гарантированно кликабельными === */
 .app{ z-index: 10; }
