@@ -97,7 +97,18 @@ body.locked { overflow: hidden; }
   padding:14px 16px;
   margin-bottom:10px;
   background:#141821;
+  position: relative;
+  z-index: 1;
 }
+
+.news-item a{
+  color:var(--fg);
+  text-decoration:underline;
+  pointer-events:auto;
+  position:relative;
+  z-index:10;
+}
+
 .news-item .title{
   font-weight:700;
   margin-bottom:6px;
