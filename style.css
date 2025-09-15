@@ -1,9 +1,6 @@
-.top-news{
-  position:sticky;
-  top:calc(env(safe-area-inset-top) + 52px);
-  z-index:10;
-  margin-bottom:16px;
-}
+/* === Основные слои === */
+.tabs{position:sticky;top:calc(env(safe-area-inset-top) + 8px);z-index:1000;display:flex;gap:8px;margin:10px 0 16px}
+.top-news{position:sticky;top:calc(env(safe-area-inset-top) + 64px);z-index:900;margin-bottom:16px}
 
 :root{
   --bg:#0d0f14; --fg:#f5f7fb; --muted:#c0a87a;
@@ -13,24 +10,20 @@
 }
 
 *{box-sizing:border-box}
-html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--fg);font-family:"Cinzel",serif}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:"Cinzel",serif;-webkit-tap-highlight-color:transparent}
 
-.btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  padding:12px 16px;border-radius:12px;border:1px solid var(--border);
-  background:transparent;color:var(--fg);cursor:pointer;font-weight:600;
-  transition:transform .18s ease, background .18s ease, box-shadow .18s ease;
-}
+/* --- Кнопки --- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--fg);cursor:pointer;font-weight:600;transition:transform .18s ease, background .18s ease, box-shadow .18s ease}
 .btn:active{transform:translateY(1px)}
 .btn-accent{background:var(--accent);color:#0c0c0c;border:none}
 .btn-accent.ghost{background:transparent;color:var(--fg);border:1px solid var(--border)}
 
+/* --- Экраны --- */
 .screen{position:relative;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;background:#0d0f14}
 .brand{font-family:"Cinzel",serif;font-size:44px;line-height:1.1;text-align:center;color:var(--accent);text-shadow:0 0 12px rgba(201,168,106,.6)}
 .tagline{font-family:"Great Vibes",cursive;color:var(--accent);margin:14px 0 22px;font-size:22px;text-shadow:0 0 8px rgba(201,168,106,.4)}
 
-/* Watermark приборы */
+/* --- Watermark декоративные слои --- */
 .wm{position:absolute;pointer-events:none;opacity:.35;mix-blend-mode:screen;z-index:0}
 .wm-astrolabe{left:-80px;bottom:-60px;width:720px;height:720px;background:url('./assets/astrolabe.svg') no-repeat center/contain;filter:brightness(1.2) sepia(1) hue-rotate(10deg) saturate(1.2)}
 .wm-pendulum{right:-70px;top:-40px;width:520px;height:520px;background:url('./assets/pendulum.svg') no-repeat center/contain;filter:brightness(1.2) sepia(1) hue-rotate(10deg) saturate(1.2)}
@@ -39,8 +32,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:"Cinzel",serif}
 .top{display:flex;align-items:center;justify-content:space-between;padding:6px 2px}
 .title{font-weight:700}
 
-.tabs{position:sticky;top:calc(env(safe-area-inset-top) + 8px);z-index:5;display:flex;gap:8px;margin:10px 0 16px}
-.tab{padding:8px 14px;border-radius:999px;border:1px solid var(--border);color:var(--muted);background:rgba(23,26,33,.6);backdrop-filter:blur(8px) saturate(120%);cursor:pointer}
+.tab{padding:8px 14px;border-radius:999px;border:1px solid var(--border);color:var(--muted);background:rgba(23,26,33,.6);backdrop-filter:blur(8px) saturate(120%);cursor:pointer;-webkit-tap-highlight-color:transparent}
 .tab.active{color:var(--fg);background:var(--card)}
 
 .view{display:none;opacity:0;transform:translateY(6px);transition:opacity .24s ease, transform .24s ease}
@@ -66,106 +58,42 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:"Cinzel",serif}
 /* скрываем welcome при уходе */
 #welcome.hide{animation:fadeOut .28s ease forwards}
 @keyframes fadeOut{to{opacity:0;transform:translateY(-6px)}}
-
-/* полное скрытие после анимации */
 #welcome[hidden], #welcome.hide{display:none!important}
 
 /* Canvas адаптивность */
-.card canvas { width:100% !important; height:auto; }
+.card canvas{width:100% !important;height:auto}
 
-.range-pill{
-  display:inline-block; margin-left:6px; padding:4px 10px;
-  border:1px solid var(--border); border-radius:999px; cursor:pointer;
-  color:var(--muted); user-select:none;
-}
-.range-pill.active{ background:var(--card); color:var(--fg); }
-.card canvas{ width:100%; max-width:100%; }
+.range-pill{display:inline-block;margin-left:6px;padding:4px 10px;border:1px solid var(--border);border-radius:999px;cursor:pointer;color:var(--muted);user-select:none}
+.range-pill.active{background:var(--card);color:var(--fg)}
 
-/* 1. базовая очистка */
-html, body { height: 100%; margin: 0; }
+/* высота экрана */
+:root{--vh:1vh}
+:root{--vh:1svh}
+#welcome,#app{min-height:calc(var(--vh) * 100)}
+body.locked{overflow:hidden}
 
-/* 2. переменная высоты, которую будем обновлять из JS */
-:root { --vh: 1vh; }          /* fallback */
-:root { --vh: 1svh; }         /* новые браузеры */
+/* --- Новости / инсайты --- */
+.news-item{border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;background:#141821;position:relative;z-index:2}
+.news-item a{display:inline-block;color:var(--fg);text-decoration:underline;pointer-events:auto;position:relative;z-index:950;cursor:pointer;-webkit-tap-highlight-color:rgba(255,255,255,.15)}
+.news-item .title{font-weight:700;margin-bottom:6px;color:var(--fg)}
+.news-item .meta{font-size:12px;color:var(--muted);margin-bottom:6px}
 
- /* 3. экраны приложения должны занимать реальную высоту */
-#welcome,
-#app {
-  min-height: calc(var(--vh) * 100);
-}
-
-/* чтобы на обложке не прокручивало фон */
-body.locked { overflow: hidden; }
-
-/* --- Дополнения для новостей / инсайтов --- */
-.news-item{
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:14px 16px;
-  margin-bottom:10px;
-  background:#141821;
-  position: relative;
-  z-index: 2;
-}
-
-.news-item a{
-  display:inline-block;
-  color:var(--fg);
-  text-decoration:underline;
-  pointer-events:auto;
-  position:relative;
-  z-index:20;
-}
-
-.news-item .title{
-  font-weight:700;
-  margin-bottom:6px;
-  color:var(--fg);
-}
-.news-item .meta{
-  font-size:12px;
-  color:var(--muted);
-  margin-bottom:6px;
-}
-
-.badge{
-  display:inline-block;
-  padding:4px 10px;
-  border-radius:999px;
-  border:1px solid var(--border);
-  font-size:11px;
-  font-weight:600;
-  text-transform:uppercase;
-  letter-spacing:.3px;
-  margin-right:6px;
-}
+.badge{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid var(--border);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-right:6px}
 .badge.verified{background:var(--accent);color:#0c0c0c;border:none}
 .badge.rumor{background:transparent;color:var(--muted)}
-
-/* бейджи настроения */
 .badge.positive{background:var(--good);color:#0c0c0c;border:none}
 .badge.negative{background:var(--bad);color:#fff;border:none}
 .badge.neutral{background:transparent;color:var(--muted);border:1px solid var(--border)}
 
-.ai-note{
-  font-size:13px;
-  line-height:1.4;
-  color:var(--fg);
-  margin-top:6px;
-}
-.ai-note .confidence{
-  display:block;
-  font-size:11px;
-  font-weight:600;
-  color:var(--muted);
-  margin-top:4px;
-}
+.ai-note{font-size:13px;line-height:1.4;color:var(--fg);margin-top:6px}
+.ai-note .confidence{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-top:4px}
 
-/* === FIX: делаем ссылки новостей гарантированно кликабельными === */
-.app{ z-index: 10; }
-#news-home{ position: relative; z-index: 200; }
-.card, .list, .news-item{ pointer-events: auto; }
-.news-item, .news-item *{ pointer-events: auto !important; }
-.news-item a{ cursor: pointer; position: relative; z-index: 5; }
-/* любые декоративные слои точно не перехватывают клики */
-.wm, .wm-astrolabe, .wm-pendulum{ pointer-events: none !important; z-index: 0; }
+/* === FIX кликов === */
+.app{z-index:1}
+#news-home{position:relative;z-index:900}
+.card,.list,.news-item{pointer-events:auto}
+.news-item,.news-item *{pointer-events:auto !important}
+.wm,.wm-astrolabe,.wm-pendulum{pointer-events:none !important;z-index:0}
+
+/* скрываем новости в профиле */
+#profile .top-news,#profile .news-list{display:none !important}
