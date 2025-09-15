@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet">
 
   <!-- Стили -->
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./style.css?v=4" />
 
   <!-- Telegram SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -41,6 +41,10 @@
       filter:drop-shadow(0 0 14px rgba(201,168,106,0.5)) sepia(1) saturate(1.2);
       mix-blend-mode:screen;
     }
+
+    /* Новости наверху всегда кликабельны */
+    .top-news { position:sticky; top:calc(env(safe-area-inset-top) + 56px); z-index:6; }
+    .news-list a { color:inherit; text-decoration:underline; position:relative; z-index:10; pointer-events:auto; }
   </style>
 </head>
 <body>
@@ -62,7 +66,7 @@
     </header>
 
     <!-- Табы для навигации -->
-    <nav class="tabs" id="tabs">
+    <nav class="tabs" id="tabs" style="position:sticky; top:calc(env(safe-area-inset-top) + 8px); z-index:7;">
       <button class="tab active" data-target="home">Главная</button>
       <button class="tab" data-target="crypto">Crypto</button>
       <button class="tab" data-target="stocks">Stocks</button>
@@ -71,8 +75,19 @@
     </nav>
 
     <main>
+      <!-- Новости перенесены наверх -->
+      <div class="card top-news">
+        <div class="card-title">Новости / Инсайты</div>
+        <div id="news-home" class="news-list"></div>
+      </div>
+
       <!-- Главная -->
       <section id="home" class="view active">
+        <!-- Новости наверху, под вкладками -->
+        <div class="card top-news" style="position:sticky; top:calc(env(safe-area-inset-top) + 56px); z-index:6;">
+          <div class="card-title">Новости / Инсайты</div>
+          <div id="news-home" class="news-list"></div>
+        </div>
         <div class="card">
           <div class="card-title">Сводка</div>
           <div id="home-brief" class="brief">
@@ -108,10 +123,6 @@
           <div class="card-title">GOLD — 30 дней</div>
           <canvas id="chart-gold" height="120"></canvas>
         </div>
-        <div class="card">
-          <div class="card-title">Новости / Инсайты</div>
-          <div id="news-list" class="news-list"></div>
-        </div>
       </section>
 
       <!-- Crypto -->
@@ -120,9 +131,6 @@
           <div class="card-title">Криптовалюты</div>
           <div id="crypto-only" class="list muted">Загрузка…</div>
         </div>
-        <div class="card">
-          <div class="card-title">Новости / Инсайты</div>
-          <div id="crypto-news" class="news-list"></div>
         </div>
       </section>
 
@@ -163,6 +171,6 @@
   </section>
 
   <!-- Подключение логики приложения -->
-  <script src="./app.js?v=15" defer></script>
+  <script src="./app.js?v=16" defer></script>
 </body>
 </html>
