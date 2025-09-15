@@ -39,7 +39,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:"Cinzel",serif}
 .view{display:none;opacity:0;transform:translateY(6px);transition:opacity .24s ease, transform .24s ease}
 .view.active{display:block;opacity:1;transform:none}
 
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px;position:relative;z-index:1}
 .card-title{font-weight:700;margin-bottom:8px}
 .list{display:grid;gap:8px}
 .row{display:flex;gap:8px}
@@ -98,15 +98,16 @@ body.locked { overflow: hidden; }
   margin-bottom:10px;
   background:#141821;
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .news-item a{
+  display:inline-block;
   color:var(--fg);
   text-decoration:underline;
   pointer-events:auto;
   position:relative;
-  z-index:10;
+  z-index:20;
 }
 
 .news-item .title{
@@ -152,3 +153,13 @@ body.locked { overflow: hidden; }
   color:var(--muted);
   margin-top:4px;
 }
+
+
+/* === FIX: делаем ссылки новостей гарантированно кликабельными === */
+.app{ z-index: 10; }
+#news-home{ position: relative; z-index: 200; }
+.card, .list, .news-item{ pointer-events: auto; }
+.news-item, .news-item *{ pointer-events: auto !important; }
+.news-item a{ cursor: pointer; position: relative; z-index: 5; }
+/* любые декоративные слои точно не перехватывают клики */
+.wm, .wm-astrolabe, .wm-pendulum{ pointer-events: none !important; z-index: 0; }
