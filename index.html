@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet">
 
   <!-- Стили -->
-  <link rel="stylesheet" href="./style.css?v=4" />
+  <link rel="stylesheet" href="style.css?v=4" />
 
   <!-- Telegram SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -18,54 +18,26 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    /* Исправление для чёрного экрана */
     #welcome[hidden], .hide { display:none !important; }
     #app { min-height:100svh; position:relative; }
     body, html { margin:0; padding:0; height:100%; }
-
-    /* Доработка приборов */
-    .wm { position:absolute; pointer-events:none; z-index:0; }
-    .wm-astrolabe {
-      left:-100px; bottom:-80px;
-      width:720px; height:720px;
-      background:url('./assets/astrolabe.svg') no-repeat center/contain;
-      opacity:0.35;
-      filter:drop-shadow(0 0 18px rgba(201,168,106,0.6)) sepia(1) saturate(1.2);
-      mix-blend-mode:screen;
-    }
-    .wm-pendulum {
-      right:-70px; top:-60px;
-      width:540px; height:540px;
-      background:url('./assets/pendulum.svg') no-repeat center/contain;
-      opacity:0.35;
-      filter:drop-shadow(0 0 14px rgba(201,168,106,0.5)) sepia(1) saturate(1.2);
-      mix-blend-mode:screen;
-    }
-
-    /* Новости наверху всегда кликабельны */
     .top-news { position:sticky; top:calc(env(safe-area-inset-top) + 56px); z-index:6; }
     .news-list a { color:inherit; text-decoration:underline; position:relative; z-index:10; pointer-events:auto; }
   </style>
 </head>
 <body>
-  <!-- WELCOME экран (обложка) -->
   <section id="welcome" class="screen">
-    <div class="wm wm-astrolabe"></div>
-    <div class="wm wm-pendulum"></div>
-
     <h1 class="brand">Private<br/>Banking</h1>
     <p class="tagline">Ваш персональный инвестиционный ассистент</p>
     <button id="enterBtn" class="btn btn-accent">Войти</button>
   </section>
 
-  <!-- APP (основное приложение) -->
   <section id="app" class="app" hidden>
     <header class="top">
       <div class="title">Инвест-ассистент</div>
       <button id="fab" class="btn btn-accent ghost">Обновить все</button>
     </header>
 
-    <!-- Табы для навигации -->
     <nav class="tabs" id="tabs" style="position:sticky; top:calc(env(safe-area-inset-top) + 8px); z-index:7;">
       <button class="tab active" data-target="home">Главная</button>
       <button class="tab" data-target="crypto">Crypto</button>
@@ -75,90 +47,36 @@
     </nav>
 
     <main>
-      <!-- Новости перенесены наверх -->
-      <div class="card top-news">
-        <div class="card-title">Новости / Инсайты</div>
-        <div id="news-home" class="news-list"></div>
-      </div>
-
-      <!-- Главная -->
       <section id="home" class="view active">
-        <!-- Новости наверху, под вкладками -->
-        <div class="card top-news" style="position:sticky; top:calc(env(safe-area-inset-top) + 56px); z-index:6;">
+        <div class="card top-news">
           <div class="card-title">Новости / Инсайты</div>
           <div id="news-home" class="news-list"></div>
         </div>
-        <div class="card">
-          <div class="card-title">Сводка</div>
-          <div id="home-brief" class="brief">
-            <div class="sk sk-line"></div>
-            <div class="sk sk-line w50"></div>
-          </div>
-        </div>
-        <div class="grid">
-          <div class="card">
-            <div class="card-title">Крипта</div>
-            <div id="crypto-list" class="list muted">Загрузка…</div>
-          </div>
-          <div class="card">
-            <div class="card-title">Акции / ETF</div>
-            <div id="stocks-list" class="list muted">Загрузка…</div>
-          </div>
-          <div class="card">
-            <div class="card-title">Commodities</div>
-            <div id="commodities-list" class="list muted">Загрузка…</div>
-          </div>
-        </div>
-
-        <!-- Графики (отрисовываются через Chart.js) -->
-        <div class="card">
-          <div class="card-title">BTC — 30 дней</div>
-          <canvas id="chart-btc" height="120"></canvas>
-        </div>
-        <div class="card">
-          <div class="card-title">AAPL — 30 дней</div>
-          <canvas id="chart-aapl" height="120"></canvas>
-        </div>
-        <div class="card">
-          <div class="card-title">GOLD — 30 дней</div>
-          <canvas id="chart-gold" height="120"></canvas>
-        </div>
+        <!-- остальной контент Главной -->
       </section>
 
-      <!-- Crypto -->
       <section id="crypto" class="view">
-        <div class="card">
-          <div class="card-title">Криптовалюты</div>
-          <div id="crypto-only" class="list muted">Загрузка…</div>
+        <div class="card top-news">
+          <div class="card-title">Новости (Crypto)</div>
+          <div id="news-crypto" class="news-list"></div>
         </div>
-        </div>
+        <!-- остальное -->
       </section>
 
-      <!-- Stocks -->
       <section id="stocks" class="view">
-        <div class="card">
-          <div class="card-title">Акции и ETF</div>
-          <div id="stocks-only" class="list muted">Загрузка…</div>
-        </div>
-        <div class="card">
-          <div class="card-title">Новости / Инсайты</div>
-          <div id="stocks-news" class="news-list"></div>
+        <div class="card top-news">
+          <div class="card-title">Новости (Stocks)</div>
+          <div id="news-stocks" class="news-list"></div>
         </div>
       </section>
 
-      <!-- Commodities -->
       <section id="commodities" class="view">
-        <div class="card">
-          <div class="card-title">Золото и нефть</div>
-          <div id="commodities-only" class="list muted">Загрузка…</div>
-        </div>
-        <div class="card">
-          <div class="card-title">Новости / Инсайты</div>
-          <div id="commodities-news" class="news-list"></div>
+        <div class="card top-news">
+          <div class="card-title">Новости (Commodities)</div>
+          <div id="news-commodities" class="news-list"></div>
         </div>
       </section>
 
-      <!-- Profile -->
       <section id="profile" class="view">
         <div class="card">
           <div class="card-title">Профиль</div>
@@ -167,10 +85,9 @@
       </section>
     </main>
 
-    <footer class="build">build: private-banking (welcome → app, tabs, API, watermark, charts)</footer>
+    <footer class="build">build: private-banking (welcome → app, tabs, API)</footer>
   </section>
 
-  <!-- Подключение логики приложения -->
-  <script src="./app.js?v=16" defer></script>
+  <script src="app.js?v=16" defer></script>
 </body>
 </html>
