@@ -77,15 +77,15 @@ async function renderNews(symbol, targetId, limit = 3){
   box.innerHTML = '<div class="muted">Новости загружаются…</div>';
   try{
     const data = await fetchNews(symbol, limit);
-    const items = data?.items || data || [];
+    const items = data?.items || data?.news || data || [];
     if (!items.length){ box.innerHTML = '<div class="muted">Нет новостей</div>'; return; }
     const html = items.slice(0, limit).map(n => {
       const title = n.title || 'Без заголовка';
       const url = n.url || '#';
-      const date = fmtDate(n.published_at || n.time || Date.now());
+      const date = fmtDate(n.published_at || n.time || n.date || Date.now());
       const sent = (n.sentiment || 'neutral').toLowerCase();
       const ai = n.ai_comment ? `<div class="ai-note">${n.ai_comment.text || n.ai_comment}</div><div class="muted tiny">confidence: ${(n.ai_comment?.confidence || 'med')}</div>` : '';
-      const kind = n.kind || n.source_kind || 'verified';
+      const kind = n.source_type || n.kind || n.source_kind || 'verified';
       return `<div class="news-item">
         <a href="${url}" target="_blank" rel="noopener">${title}</a>
         <div class="news-meta">
